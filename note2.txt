@@ -1,0 +1,63 @@
+Q: Write sql query to find the nobel prize winners of the year 1970. Return year,subject
+and winner
+
+answer:SELECT year, subject, winner
+FROM nobel_win
+WHERE year = 1970;
+
+Q: Write sql query to find the nobel prize winners in chemistry between the years 1965
+and 1975. Begin and end values are includedReturn year, subject, winner and
+country
+
+answer: -- This query selects the 'year', 'subject', 'winner', and 'country' columns from the 'nobel_win' table.
+SELECT year, subject, winner, country
+-- Specifies the table from which to retrieve the data (in this case, 'nobel_win').
+FROM nobel_win	
+-- Filters the rows to only include those where the 'subject' column has the value 'Chemistry'
+-- and the 'year' column has a value between 1965 and 1975 (inclusive).
+WHERE subject = 'Chemistry'
+  AND year >= 1965 AND year <= 1975;
+
+Q: Write sql query to retrieve the details of the winners whose first name matches with
+the string ‘Louis’. Return year,subject,winner,country
+
+answer: -- This query selects all columns from the 'nobel_win' table.
+SELECT *
+-- Specifies the table from which to retrieve the data (in this case, 'nobel_win').
+FROM nobel_win
+-- Filters the rows to only include those where the 'winner' column starts with 'Louis '.
+WHERE winner LIKE 'Louis %';
+
+Q: Write sql query to find Nobel prize winners for the subject that does not begin with
+the letter ‘P’. Order the result by year, descending and winner in ascending
+
+answer: -- This query selects all columns from the 'nobel_win' table.
+SELECT *
+-- Specifies the table from which to retrieve the data (in this case, 'nobel_win').
+FROM nobel_win
+-- Filters the rows to only include those where the 'subject' column does not start with 'P'.
+WHERE subject NOT LIKE 'P%'
+-- Orders the result set first by 'year' in descending order and then by 'winner' in ascending order.
+ORDER BY year DESC, winner;
+
+Q: Write sql query to find the details of 1970 Nobel prize winners. Order the result by
+subject, ascending except for ‘Chemistry’ and ‘Economics’ which will come at the
+end of the result set. Return year, subject, winner , country and category
+
+answer: -- This query selects all columns from the 'nobel_win' table.
+SELECT *
+-- Specifies the table from which to retrieve the data (in this case, 'nobel_win').
+FROM nobel_win
+-- Filters the rows to only include those where the 'year' column has the value 1970.
+WHERE year = 1970
+-- Orders the result set based on multiple criteria.
+ORDER BY
+  -- The CASE statement assigns a priority (1 or 0) based on the 'subject' column.
+  CASE
+    WHEN subject IN ('Economics', 'Chemistry') THEN 1
+    ELSE 0
+  END ASC,
+  -- Orders the result set by 'subject' in ascending order.
+  subject,
+  -- Orders the result set by 'winner' in ascending order.
+  winner;
