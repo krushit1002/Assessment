@@ -1,0 +1,3620 @@
+Q: Write a program to demonstrate the student management system
+
+answer: # Simple Student Management System
+
+students = {}  # Dictionary to hold student records
+
+def add_student():
+    student_id = input("Enter Student ID: ")
+    if student_id in students:
+        print("Student already exists!")
+        return
+    name = input("Enter Student Name: ")
+    age = input("Enter Age: ")
+    city = input("Enter City: ")
+    course = input("Enter Course: ")
+    students[student_id] = {
+        'name': name,
+        'age': age,
+        'city': city,
+        'course': course
+    }
+    print("Student added successfully!\n")
+
+def view_students():
+    if not students:
+        print("No student records found.")
+        return
+    print("\n--- Student Records ---")
+    for sid, details in students.items():
+        print(f"ID: {sid}, Name: {details['name']}, Age: {details['age']}, City: {details['city']}, Course: {details['course']}")
+    print()
+
+def search_student():
+    student_id = input("Enter Student ID to search: ")
+    if student_id in students:
+        s = students[student_id]
+        print(f"\nFound: ID: {student_id}, Name: {s['name']}, Age: {s['age']}, City: {s['city']}, Course: {s['course']}\n")
+    else:
+        print("Student not found.\n")
+
+def update_student():
+    student_id = input("Enter Student ID to update: ")
+    if student_id in students:
+        name = input("Enter New Name: ")
+        age = input("Enter New Age: ")
+        city = input("Enter New City: ")
+        course = input("Enter New Course: ")
+        students[student_id] = {
+            'name': name,
+            'age': age,
+            'city': city,
+            'course': course
+        }
+        print("Student updated successfully!\n")
+    else:
+        print("Student not found.\n")
+
+def delete_student():
+    student_id = input("Enter Student ID to delete: ")
+    if student_id in students:
+        del students[student_id]
+        print("Student deleted successfully!\n")
+    else:
+        print("Student not found.\n")
+
+def main_menu():
+    while True:
+        print("=== Student Management System ===")
+        print("1. Add Student")
+        print("2. View Students")
+        print("3. Search Student")
+        print("4. Update Student")
+        print("5. Delete Student")
+        print("6. Exit")
+
+        choice = input("Enter your choice (1-6): ")
+
+        if choice == '1':
+            add_student()
+        elif choice == '2':
+            view_students()
+        elif choice == '3':
+            search_student()
+        elif choice == '4':
+            update_student()
+        elif choice == '5':
+            delete_student()
+        elif choice == '6':
+            print("Exiting... Goodbye!")
+            break
+        else:
+            print("Invalid choice! Please enter a number between 1 and 6.\n")
+
+if __name__ == "__main__":
+    main_menu()
+
+Q: Prepare demonstration of crud operations with student management system
+under software development principles
+
+answer: Student Management System – CRUD Demo with Clean Software Design
+Technologies Used:
+Python
+SQLite3 (for persistent data storage)
+Organized using OOP principles and modular code
+
+SOFTWARE DEVELOPMENT PRINCIPLES APPLIED
+Principle	How It’s Applied
+Modularity	Each function has a single, well-defined task.
+Separation of Concerns	Database logic is separated from user interaction logic.
+Reusability	Reusable methods for all CRUD operations
+Scalability & Maintainability	Object-Oriented approach and structured code allow easy feature additions.
+
+Project Structure (in one file for demo simplicity)
+student_management.py
+
+CRUD Operations with Code
+import sqlite3
+
+# Database Layer
+class Database:
+    def __init__(self, db_name='students.db'):
+        self.conn = sqlite3.connect(db_name)
+        self.create_table()
+
+    def create_table(self):
+        query = '''CREATE TABLE IF NOT EXISTS Students (
+                      student_id INTEGER PRIMARY KEY,
+                      name TEXT NOT NULL,
+                      age INTEGER,
+                      city TEXT,
+                      course TEXT
+                  )'''
+        self.conn.execute(query)
+        self.conn.commit()
+
+    def insert_student(self, name, age, city, course):
+        query = '''INSERT INTO Students (name, age, city, course) VALUES (?, ?, ?, ?)'''
+        self.conn.execute(query, (name, age, city, course))
+        self.conn.commit()
+
+    def get_all_students(self):
+        cursor = self.conn.execute("SELECT * FROM Students")
+        return cursor.fetchall()
+
+    def search_student(self, student_id):
+        cursor = self.conn.execute("SELECT * FROM Students WHERE student_id = ?", (student_id,))
+        return cursor.fetchone()
+
+    def update_student(self, student_id, name, age, city, course):
+        query = '''UPDATE Students SET name=?, age=?, city=?, course=? WHERE student_id=?'''
+        self.conn.execute(query, (name, age, city, course, student_id))
+        self.conn.commit()
+
+    def delete_student(self, student_id):
+        self.conn.execute("DELETE FROM Students WHERE student_id=?", (student_id,))
+        self.conn.commit()
+
+
+# Business Logic Layer
+class StudentManager:
+    def __init__(self):
+        self.db = Database()
+
+    def add_student(self):
+        name = input("Enter Name: ")
+        age = int(input("Enter Age: "))
+        city = input("Enter City: ")
+        course = input("Enter Course: ")
+        self.db.insert_student(name, age, city, course)
+        print("Student added successfully!\n")
+
+    def view_students(self):
+        students = self.db.get_all_students()
+        if students:
+            print("\n--- All Students ---")
+            for s in students:
+                print(f"ID: {s[0]}, Name: {s[1]}, Age: {s[2]}, City: {s[3]}, Course: {s[4]}")
+        else:
+            print("No student records found.\n")
+
+    def search_student(self):
+        student_id = int(input("Enter Student ID to search: "))
+        s = self.db.search_student(student_id)
+        if s:
+            print(f"Found: ID: {s[0]}, Name: {s[1]}, Age: {s[2]}, City: {s[3]}, Course: {s[4]}")
+        else:
+            print("Student not found.\n")
+
+    def update_student(self):
+        student_id = int(input("Enter Student ID to update: "))
+        name = input("Enter New Name: ")
+        age = int(input("Enter New Age: "))
+        city = input("Enter New City: ")
+        course = input("Enter New Course: ")
+        self.db.update_student(student_id, name, age, city, course)
+        print("Student updated successfully!\n")
+
+    def delete_student(self):
+        student_id = int(input("Enter Student ID to delete: "))
+        self.db.delete_student(student_id)
+        print("Student deleted successfully!\n")
+
+
+# Presentation Layer (UI/UX)
+def main():
+    manager = StudentManager()
+    while True:
+        print("\n===== Student Management System =====")
+        print("1. Add Student")
+        print("2. View All Students")
+        print("3. Search Student")
+        print("4. Update Student")
+        print("5. Delete Student")
+        print("6. Exit")
+
+        choice = input("Enter choice (1-6): ")
+
+        if choice == '1':
+            manager.add_student()
+        elif choice == '2':
+            manager.view_students()
+        elif choice == '3':
+            manager.search_student()
+        elif choice == '4':
+            manager.update_student()
+        elif choice == '5':
+            manager.delete_student()
+        elif choice == '6':
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice! Try again.")
+
+if __name__ == "__main__":
+    main()
+
+Example Test Flow (Console):
+1. Add Student
+Enter Name: Alice
+Enter Age: 20
+Enter City: Delhi
+Enter Course: B.Tech
+
+2. View All Students
+(ID: 1, Name: Alice, Age: 20, City: Delhi, Course: B.Tech)
+
+3. Search Student
+Enter ID: 1
+Found: Alice, 20, Delhi, B.Tech
+
+4. Update Student
+Enter ID: 1 → Change City to Mumbai
+
+5. Delete Student
+Enter ID: 1 → Removed from database
+
+Q: Execution of the code following menu must be displayed.
+
+answer: ===== Student Management System =====
+1. Add Student
+2. View All Students
+3. Search Student
+4. Update Student
+5. Delete Student
+6. Exit
+Enter choice (1-6):
+
+Student added successfully!
+
+===== Student Management System =====
+1. Add Student
+2. View All Students
+3. Search Student
+4. Update Student
+5. Delete Student
+6. Exit
+Enter choice (1-6):
+
+def main():
+    manager = StudentManager()
+    while True:
+        print("\n===== Student Management System =====")
+        print("1. Add Student")
+        print("2. View All Students")
+        print("3. Search Student")
+        print("4. Update Student")
+        print("5. Delete Student")
+        print("6. Exit")
+
+        choice = input("Enter choice (1-6): ")
+
+        if choice == '1':
+            manager.add_student()
+        elif choice == '2':
+            manager.view_students()
+        elif choice == '3':
+            manager.search_student()
+        elif choice == '4':
+            manager.update_student()
+        elif choice == '5':
+            manager.delete_student()
+        elif choice == '6':
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice! Try again.")
+
+Q: Make sure each business logic is denoted with appropriate comments and
+make your code interactive and represent clean and clear output on your
+console screen.
+
+answer: Python Code: Interactive and Commented Student Management System
+import sqlite3
+
+# Database Layer
+class Database:
+    def __init__(self, db_name='students.db'):
+        # Establishes connection to SQLite Database
+        self.conn = sqlite3.connect(db_name)
+        self.create_table()
+
+    def create_table(self):
+        # Creates the 'Students' table if it doesn't exist
+        query = '''CREATE TABLE IF NOT EXISTS Students (
+                      student_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                      name TEXT NOT NULL,
+                      age INTEGER,
+                      city TEXT,
+                      course TEXT
+                  )'''
+        self.conn.execute(query)
+        self.conn.commit()
+
+    def insert_student(self, name, age, city, course):
+        # Inserts a new student into the database
+        query = '''INSERT INTO Students (name, age, city, course) VALUES (?, ?, ?, ?)'''
+        self.conn.execute(query, (name, age, city, course))
+        self.conn.commit()
+
+    def get_all_students(self):
+        # Fetches all students from the database
+        cursor = self.conn.execute("SELECT * FROM Students")
+        return cursor.fetchall()
+
+    def search_student(self, student_id):
+        # Searches for a student by student_id
+        cursor = self.conn.execute("SELECT * FROM Students WHERE student_id = ?", (student_id,))
+        return cursor.fetchone()
+
+    def update_student(self, student_id, name, age, city, course):
+        # Updates student information by student_id
+        query = '''UPDATE Students SET name=?, age=?, city=?, course=? WHERE student_id=?'''
+        self.conn.execute(query, (name, age, city, course, student_id))
+        self.conn.commit()
+
+    def delete_student(self, student_id):
+        # Deletes a student record by student_id
+        self.conn.execute("DELETE FROM Students WHERE student_id=?", (student_id,))
+        self.conn.commit()
+
+
+# Business Logic Layer
+class StudentManager:
+    def __init__(self):
+        # Initializes the database object
+        self.db = Database()
+
+    def add_student(self):
+        # Add a new student to the system
+        print("\n--- Add New Student ---")
+        name = input("Enter Name: ")
+        age = int(input("Enter Age: "))
+        city = input("Enter City: ")
+        course = input("Enter Course: ")
+        self.db.insert_student(name, age, city, course)
+        print(f"Student {name} added successfully!\n")
+
+    def view_students(self):
+        # View all students currently stored in the system
+        students = self.db.get_all_students()
+        if students:
+            print("\n--- All Students ---")
+            for s in students:
+                print(f"ID: {s[0]}, Name: {s[1]}, Age: {s[2]}, City: {s[3]}, Course: {s[4]}")
+        else:
+            print("No student records found.\n")
+
+    def search_student(self):
+        # Search for a student by student ID
+        print("\n--- Search Student ---")
+        student_id = int(input("Enter Student ID to search: "))
+        student = self.db.search_student(student_id)
+        if student:
+            print(f"\nFound Student: ID: {student[0]}, Name: {student[1]}, Age: {student[2]}, City: {student[3]}, Course: {student[4]}\n")
+        else:
+            print("Student not found.\n")
+
+    def update_student(self):
+        # Update student details by student ID
+        print("\n--- Update Student Information ---")
+        student_id = int(input("Enter Student ID to update: "))
+        # Check if student exists
+        student = self.db.search_student(student_id)
+        if student:
+            name = input(f"Enter New Name (current: {student[1]}): ") or student[1]
+            age = int(input(f"Enter New Age (current: {student[2]}): ") or student[2])
+            city = input(f"Enter New City (current: {student[3]}): ") or student[3]
+            course = input(f"Enter New Course (current: {student[4]}): ") or student[4]
+            self.db.update_student(student_id, name, age, city, course)
+            print("Student updated successfully!\n")
+        else:
+            print("Student not found.\n")
+
+    def delete_student(self):
+        # Delete a student by student ID
+        print("\n--- Delete Student ---")
+        student_id = int(input("Enter Student ID to delete: "))
+        student = self.db.search_student(student_id)
+        if student:
+            confirmation = input(f"Are you sure you want to delete {student[1]}? (y/n): ")
+            if confirmation.lower() == 'y':
+                self.db.delete_student(student_id)
+                print("Student deleted successfully!\n")
+            else:
+                print("Deletion canceled.\n")
+        else:
+            print("Student not found.\n")
+
+
+# Presentation Layer (UI/UX)
+def main():
+    manager = StudentManager()
+    while True:
+        print("\n===== Student Management System =====")
+        print("1. Add Student")
+        print("2. View All Students")
+        print("3. Search Student")
+        print("4. Update Student")
+        print("5. Delete Student")
+        print("6. Exit")
+
+        choice = input("Enter choice (1-6): ")
+
+        if choice == '1':
+            manager.add_student()
+        elif choice == '2':
+            manager.view_students()
+        elif choice == '3':
+            manager.search_student()
+        elif choice == '4':
+            manager.update_student()
+        elif choice == '5':
+            manager.delete_student()
+        elif choice == '6':
+            print("\nGoodbye! Thank you for using the Student Management System.")
+            break
+        else:
+            print("Invalid choice! Please enter a valid number between 1 and 6.\n")
+
+if __name__ == "__main__":
+    main()
+
+Key Features:
+Interactive prompts: After each operation, the user is prompted for the next action, making the system more interactive and engaging.
+
+Clear outputs: The console outputs are clean and descriptive, with clear headings for each section (e.g., Add New Student, All Students, Search Student).
+
+Comments for business logic: Each method and its operations are clearly commented to explain its purpose.
+
+Sample Output Flow:
+Menu Display:
+===== Student Management System =====
+1. Add Student
+2. View All Students
+3. Search Student
+4. Update Student
+5. Delete Student
+6. Exit
+Enter choice (1-6):
+
+Add Student Example:
+--- Add New Student ---
+Enter Name: John Doe
+Enter Age: 21
+Enter City: New York
+Enter Course: Computer Science
+Student John Doe added successfully!
+
+View All Students Example:
+--- All Students ---
+ID: 1, Name: John Doe, Age: 21, City: New York, Course: Computer Science
+
+Search Student Example:
+--- Search Student ---
+Enter Student ID to search: 1
+
+Found Student: ID: 1, Name: John Doe, Age: 21, City: New York, Course: Computer Science
+
+Update Student Example:
+--- Update Student Information ---
+Enter Student ID to update: 1
+Enter New Name (current: John Doe): Johnathan Doe
+Enter New Age (current: 21): 22
+Enter New City (current: New York): Los Angeles
+Enter New Course (current: Computer Science): Software Engineering
+Student updated successfully!
+
+Delete Student Example:
+--- Delete Student ---
+Enter Student ID to delete: 1
+Are you sure you want to delete Johnathan Doe? (y/n): y
+Student deleted successfully!
+
+Q: when user select option 1 then it will display following menu
+
+answer: import sqlite3
+
+# Database Layer
+class Database:
+    def __init__(self, db_name='students.db'):
+        # Establishes connection to SQLite Database
+        self.conn = sqlite3.connect(db_name)
+        self.create_table()
+
+    def create_table(self):
+        # Creates the 'Students' table if it doesn't exist
+        query = '''CREATE TABLE IF NOT EXISTS Students (
+                      student_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                      name TEXT NOT NULL,
+                      age INTEGER,
+                      city TEXT,
+                      course TEXT
+                  )'''
+        self.conn.execute(query)
+        self.conn.commit()
+
+    def insert_student(self, name, age, city, course):
+        # Inserts a new student into the database
+        query = '''INSERT INTO Students (name, age, city, course) VALUES (?, ?, ?, ?)'''
+        self.conn.execute(query, (name, age, city, course))
+        self.conn.commit()
+
+    def get_all_students(self):
+        # Fetches all students from the database
+        cursor = self.conn.execute("SELECT * FROM Students")
+        return cursor.fetchall()
+
+    def search_student(self, student_id):
+        # Searches for a student by student_id
+        cursor = self.conn.execute("SELECT * FROM Students WHERE student_id = ?", (student_id,))
+        return cursor.fetchone()
+
+    def update_student(self, student_id, name, age, city, course):
+        # Updates student information by student_id
+        query = '''UPDATE Students SET name=?, age=?, city=?, course=? WHERE student_id=?'''
+        self.conn.execute(query, (name, age, city, course, student_id))
+        self.conn.commit()
+
+    def delete_student(self, student_id):
+        # Deletes a student record by student_id
+        self.conn.execute("DELETE FROM Students WHERE student_id=?", (student_id,))
+        self.conn.commit()
+
+
+# Business Logic Layer
+class StudentManager:
+    def __init__(self):
+        # Initializes the database object
+        self.db = Database()
+
+    def add_student(self):
+        # Display Add Student submenu
+        print("\n--- Add New Student ---")
+        name = input("Enter Name: ")
+        age = int(input("Enter Age: "))
+        city = input("Enter City: ")
+        course = input("Enter Course: ")
+
+        # Call the database function to insert the student
+        self.db.insert_student(name, age, city, course)
+        print(f"\nStudent '{name}' added successfully!\n")
+
+    def view_students(self):
+        # View all students currently stored in the system
+        students = self.db.get_all_students()
+        if students:
+            print("\n--- All Students ---")
+            for s in students:
+                print(f"ID: {s[0]}, Name: {s[1]}, Age: {s[2]}, City: {s[3]}, Course: {s[4]}")
+        else:
+            print("No student records found.\n")
+
+    def search_student(self):
+        # Search for a student by student ID
+        print("\n--- Search Student ---")
+        student_id = int(input("Enter Student ID to search: "))
+        student = self.db.search_student(student_id)
+        if student:
+            print(f"\nFound Student: ID: {student[0]}, Name: {student[1]}, Age: {student[2]}, City: {student[3]}, Course: {student[4]}\n")
+        else:
+            print("Student not found.\n")
+
+    def update_student(self):
+        # Update student details by student ID
+        print("\n--- Update Student Information ---")
+        student_id = int(input("Enter Student ID to update: "))
+        # Check if student exists
+        student = self.db.search_student(student_id)
+        if student:
+            name = input(f"Enter New Name (current: {student[1]}): ") or student[1]
+            age = int(input(f"Enter New Age (current: {student[2]}): ") or student[2])
+            city = input(f"Enter New City (current: {student[3]}): ") or student[3]
+            course = input(f"Enter New Course (current: {student[4]}): ") or student[4]
+            self.db.update_student(student_id, name, age, city, course)
+            print("Student updated successfully!\n")
+        else:
+            print("Student not found.\n")
+
+    def delete_student(self):
+        # Delete a student by student ID
+        print("\n--- Delete Student ---")
+        student_id = int(input("Enter Student ID to delete: "))
+        student = self.db.search_student(student_id)
+        if student:
+            confirmation = input(f"Are you sure you want to delete {student[1]}? (y/n): ")
+            if confirmation.lower() == 'y':
+                self.db.delete_student(student_id)
+                print("Student deleted successfully!\n")
+            else:
+                print("Deletion canceled.\n")
+        else:
+            print("Student not found.\n")
+
+
+# Presentation Layer (UI/UX)
+def main():
+    manager = StudentManager()
+    while True:
+        print("\n===== Student Management System =====")
+        print("1. Add Student")
+        print("2. View All Students")
+        print("3. Search Student")
+        print("4. Update Student")
+        print("5. Delete Student")
+        print("6. Exit")
+
+        choice = input("Enter choice (1-6): ")
+
+        if choice == '1':
+            # If user selects "Add Student", display detailed menu
+            manager.add_student()
+        elif choice == '2':
+            manager.view_students()
+        elif choice == '3':
+            manager.search_student()
+        elif choice == '4':
+            manager.update_student()
+        elif choice == '5':
+            manager.delete_student()
+        elif choice == '6':
+            print("\nGoodbye! Thank you for using the Student Management System.")
+            break
+        else:
+            print("Invalid choice! Please enter a valid number between 1 and 6.\n")
+
+if __name__ == "__main__":
+    main()
+
+Key Changes:
+Detailed Submenu for "Add Student":
+
+When the user selects option 1 (Add Student), it now shows the necessary input prompts:
+
+Enter Name
+
+Enter Age
+
+Enter City
+
+Enter Course
+
+After entering all these details, the student is added to the database, and a success message is displayed.
+
+Example Console Output:
+Main Menu:
+===== Student Management System =====
+1. Add Student
+2. View All Students
+3. Search Student
+4. Update Student
+5. Delete Student
+6. Exit
+Enter choice (1-6):
+
+After Selecting Option 1 (Add Student):
+--- Add New Student ---
+Enter Name: John Doe
+Enter Age: 21
+Enter City: New York
+Enter Course: Computer Science
+
+Student 'John Doe' added successfully!
+
+Back to Main Menu:
+===== Student Management System =====
+1. Add Student
+2. View All Students
+3. Search Student
+4. Update Student
+5. Delete Student
+6. Exit
+Enter choice (1-6):
+
+Q: Counsellor can add student , remove student , view all student , view specific
+student
+
+answer: import sqlite3
+
+# Database Layer
+class Database:
+    def __init__(self, db_name='students.db'):
+        # Establishes connection to SQLite Database
+        self.conn = sqlite3.connect(db_name)
+        self.create_table()
+
+    def create_table(self):
+        # Creates the 'Students' table if it doesn't exist
+        query = '''CREATE TABLE IF NOT EXISTS Students (
+                      student_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                      name TEXT NOT NULL,
+                      age INTEGER,
+                      city TEXT,
+                      course TEXT
+                  )'''
+        self.conn.execute(query)
+        self.conn.commit()
+
+    def insert_student(self, name, age, city, course):
+        # Inserts a new student into the database
+        query = '''INSERT INTO Students (name, age, city, course) VALUES (?, ?, ?, ?)'''
+        self.conn.execute(query, (name, age, city, course))
+        self.conn.commit()
+
+    def get_all_students(self):
+        # Fetches all students from the database
+        cursor = self.conn.execute("SELECT * FROM Students")
+        return cursor.fetchall()
+
+    def search_student(self, student_id):
+        # Searches for a student by student_id
+        cursor = self.conn.execute("SELECT * FROM Students WHERE student_id = ?", (student_id,))
+        return cursor.fetchone()
+
+    def update_student(self, student_id, name, age, city, course):
+        # Updates student information by student_id
+        query = '''UPDATE Students SET name=?, age=?, city=?, course=? WHERE student_id=?'''
+        self.conn.execute(query, (name, age, city, course, student_id))
+        self.conn.commit()
+
+    def delete_student(self, student_id):
+        # Deletes a student record by student_id
+        self.conn.execute("DELETE FROM Students WHERE student_id=?", (student_id,))
+        self.conn.commit()
+
+
+# Business Logic Layer for the Counselor's operations
+class StudentManager:
+    def __init__(self):
+        # Initializes the database object
+        self.db = Database()
+
+    def add_student(self):
+        # Display Add Student submenu
+        print("\n--- Add New Student ---")
+        name = input("Enter Name: ")
+        age = int(input("Enter Age: "))
+        city = input("Enter City: ")
+        course = input("Enter Course: ")
+
+        # Call the database function to insert the student
+        self.db.insert_student(name, age, city, course)
+        print(f"\nStudent '{name}' added successfully!\n")
+
+    def remove_student(self):
+        # Remove a student by student ID
+        print("\n--- Remove Student ---")
+        student_id = int(input("Enter Student ID to remove: "))
+        student = self.db.search_student(student_id)
+        if student:
+            confirmation = input(f"Are you sure you want to delete {student[1]}? (y/n): ")
+            if confirmation.lower() == 'y':
+                self.db.delete_student(student_id)
+                print(f"Student '{student[1]}' removed successfully!\n")
+            else:
+                print("Deletion canceled.\n")
+        else:
+            print("Student not found.\n")
+
+    def view_all_students(self):
+        # View all students currently stored in the system
+        students = self.db.get_all_students()
+        if students:
+            print("\n--- All Students ---")
+            for s in students:
+                print(f"ID: {s[0]}, Name: {s[1]}, Age: {s[2]}, City: {s[3]}, Course: {s[4]}")
+        else:
+            print("No student records found.\n")
+
+    def view_specific_student(self):
+        # View specific student details by student ID
+        print("\n--- View Specific Student ---")
+        student_id = int(input("Enter Student ID to view: "))
+        student = self.db.search_student(student_id)
+        if student:
+            print(f"\nFound Student: ID: {student[0]}, Name: {student[1]}, Age: {student[2]}, City: {student[3]}, Course: {student[4]}\n")
+        else:
+            print("Student not found.\n")
+
+
+# Presentation Layer (UI/UX)
+class Counselor:
+    def __init__(self):
+        # Counselor functionality
+        self.manager = StudentManager()
+
+    def show_counselor_menu(self):
+        # Display counselor's menu options
+        while True:
+            print("\n===== Counselor's Menu =====")
+            print("1. Add Student")
+            print("2. Remove Student")
+            print("3. View All Students")
+            print("4. View Specific Student")
+            print("5. Exit")
+
+            choice = input("Enter choice (1-5): ")
+
+            if choice == '1':
+                self.manager.add_student()
+            elif choice == '2':
+                self.manager.remove_student()
+            elif choice == '3':
+                self.manager.view_all_students()
+            elif choice == '4':
+                self.manager.view_specific_student()
+            elif choice == '5':
+                print("\nExiting Counselor's Menu...\n")
+                break
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 5.\n")
+
+
+# Main Application - Simulating Counselor Login and Role Access
+def main():
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Counselor.")
+
+    # Simulate login (in real applications, this would involve more robust authentication)
+    counselor_username = input("Enter Counselor Username: ")
+    counselor_password = input("Enter Counselor Password: ")
+
+    # Hardcoded credentials for demonstration (you can replace this with actual logic)
+    if counselor_username == "counselor" and counselor_password == "password":
+        print("\nLogin successful! Welcome, Counselor.")
+        counselor = Counselor()
+        counselor.show_counselor_menu()
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Example Console Output:
+Login Screen:
+Welcome to the Student Management System!
+Please log in as a Counselor.
+Enter Counselor Username: counselor
+Enter Counselor Password: password
+
+Login successful! Welcome, Counselor.
+
+Counselor's Menu:
+===== Counselor's Menu =====
+1. Add Student
+2. Remove Student
+3. View All Students
+4. View Specific Student
+5. Exit
+Enter choice (1-5):
+
+Add Student Example:
+--- Add New Student ---
+Enter Name: Alice
+Enter Age: 22
+Enter City: Los Angeles
+Enter Course: Data Science
+
+Student 'Alice' added successfully!
+
+Q: Accept all values dynamically from user
+
+import sqlite3
+
+# Database Layer
+class Database:
+    def __init__(self, db_name='students.db'):
+        # Establishes connection to SQLite Database
+        self.conn = sqlite3.connect(db_name)
+        self.create_table()
+
+    def create_table(self):
+        # Creates the 'Students' table if it doesn't exist
+        query = '''CREATE TABLE IF NOT EXISTS Students (
+                      student_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                      name TEXT NOT NULL,
+                      age INTEGER,
+                      city TEXT,
+                      course TEXT
+                  )'''
+        self.conn.execute(query)
+        self.conn.commit()
+
+    def insert_student(self, name, age, city, course):
+        # Inserts a new student into the database
+        query = '''INSERT INTO Students (name, age, city, course) VALUES (?, ?, ?, ?)'''
+        self.conn.execute(query, (name, age, city, course))
+        self.conn.commit()
+
+    def get_all_students(self):
+        # Fetches all students from the database
+        cursor = self.conn.execute("SELECT * FROM Students")
+        return cursor.fetchall()
+
+    def search_student(self, student_id):
+        # Searches for a student by student_id
+        cursor = self.conn.execute("SELECT * FROM Students WHERE student_id = ?", (student_id,))
+        return cursor.fetchone()
+
+    def update_student(self, student_id, name, age, city, course):
+        # Updates student information by student_id
+        query = '''UPDATE Students SET name=?, age=?, city=?, course=? WHERE student_id=?'''
+        self.conn.execute(query, (name, age, city, course, student_id))
+        self.conn.commit()
+
+    def delete_student(self, student_id):
+        # Deletes a student record by student_id
+        self.conn.execute("DELETE FROM Students WHERE student_id=?", (student_id,))
+        self.conn.commit()
+
+
+# Business Logic Layer for the Counselor's operations
+class StudentManager:
+    def __init__(self):
+        # Initializes the database object
+        self.db = Database()
+
+    def add_student(self):
+        # Display Add Student submenu
+        print("\n--- Add New Student ---")
+        name = input("Enter Name: ")
+        age = int(input("Enter Age: "))
+        city = input("Enter City: ")
+        course = input("Enter Course: ")
+
+        # Call the database function to insert the student
+        self.db.insert_student(name, age, city, course)
+        print(f"\nStudent '{name}' added successfully!\n")
+
+    def remove_student(self):
+        # Remove a student by student ID
+        print("\n--- Remove Student ---")
+        student_id = int(input("Enter Student ID to remove: "))
+        student = self.db.search_student(student_id)
+        if student:
+            confirmation = input(f"Are you sure you want to delete {student[1]}? (y/n): ")
+            if confirmation.lower() == 'y':
+                self.db.delete_student(student_id)
+                print(f"Student '{student[1]}' removed successfully!\n")
+            else:
+                print("Deletion canceled.\n")
+        else:
+            print("Student not found.\n")
+
+    def view_all_students(self):
+        # View all students currently stored in the system
+        students = self.db.get_all_students()
+        if students:
+            print("\n--- All Students ---")
+            for s in students:
+                print(f"ID: {s[0]}, Name: {s[1]}, Age: {s[2]}, City: {s[3]}, Course: {s[4]}")
+        else:
+            print("No student records found.\n")
+
+    def view_specific_student(self):
+        # View specific student details by student ID
+        print("\n--- View Specific Student ---")
+        student_id = int(input("Enter Student ID to view: "))
+        student = self.db.search_student(student_id)
+        if student:
+            print(f"\nFound Student: ID: {student[0]}, Name: {student[1]}, Age: {student[2]}, City: {student[3]}, Course: {student[4]}\n")
+        else:
+            print("Student not found.\n")
+
+
+# Presentation Layer (UI/UX)
+class Counselor:
+    def __init__(self):
+        # Counselor functionality
+        self.manager = StudentManager()
+
+    def show_counselor_menu(self):
+        # Display counselor's menu options
+        while True:
+            print("\n===== Counselor's Menu =====")
+            print("1. Add Student")
+            print("2. Remove Student")
+            print("3. View All Students")
+            print("4. View Specific Student")
+            print("5. Exit")
+
+            choice = input("Enter choice (1-5): ")
+
+            if choice == '1':
+                self.manager.add_student()
+            elif choice == '2':
+                self.manager.remove_student()
+            elif choice == '3':
+                self.manager.view_all_students()
+            elif choice == '4':
+                self.manager.view_specific_student()
+            elif choice == '5':
+                print("\nExiting Counselor's Menu...\n")
+                break
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 5.\n")
+
+
+# Main Application - Simulating Counselor Login and Role Access
+def main():
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Counselor.")
+
+    # Simulate login (in real applications, this would involve more robust authentication)
+    counselor_username = input("Enter Counselor Username: ")
+    counselor_password = input("Enter Counselor Password: ")
+
+    # Hardcoded credentials for demonstration (you can replace this with actual logic)
+    if counselor_username == "counselor" and counselor_password == "password":
+        print("\nLogin successful! Welcome, Counselor.")
+        counselor = Counselor()
+        counselor.show_counselor_menu()
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Login Screen:
+Welcome to the Student Management System!
+Please log in as a Counselor.
+Enter Counselor Username: counselor
+Enter Counselor Password: password
+
+Login successful! Welcome, Counselor.
+
+Counselor's Menu:
+===== Counselor's Menu =====
+1. Add Student
+2. Remove Student
+3. View All Students
+4. View Specific Student
+5. Exit
+Enter choice (1-5):
+
+Add Student Example:
+--- Add New Student ---
+Enter Name: John Doe
+Enter Age: 20
+Enter City: New York
+Enter Course: Computer Science
+
+Student 'John Doe' added successfully!
+
+Remove Student Example:
+--- Remove Student ---
+Enter Student ID to remove: 1
+Are you sure you want to delete John Doe? (y/n): y
+Student 'John Doe' removed successfully!
+
+View All Students Example:
+--- All Students ---
+ID: 1, Name: John Doe, Age: 20, City: New York, Course: Computer Science
+
+View Specific Student Example:
+--- View Specific Student ---
+Enter Student ID to view: 1
+Found Student: ID: 1, Name: John Doe, Age: 20, City: New York, Course: Computer Science
+
+Q: Store all students information in dictionary format
+
+answer: class StudentManager:
+    def __init__(self):
+        # In-memory dictionary to store students
+        self.students = {}  # Dictionary format: {student_id: {'name': 'John', 'age': 20, 'city': 'New York', 'course': 'CS'}}
+        self.student_id_counter = 1  # To keep track of the next available student ID
+
+    def add_student(self):
+        # Dynamically add a student
+        print("\n--- Add New Student ---")
+        name = input("Enter Name: ")
+        age = int(input("Enter Age: "))
+        city = input("Enter City: ")
+        course = input("Enter Course: ")
+
+        # Store student data in dictionary with unique student ID
+        student_id = self.student_id_counter
+        self.students[student_id] = {'name': name, 'age': age, 'city': city, 'course': course}
+        
+        # Increment student ID counter
+        self.student_id_counter += 1
+        print(f"\nStudent '{name}' added successfully with ID {student_id}!\n")
+
+    def remove_student(self):
+        # Remove a student by student ID
+        print("\n--- Remove Student ---")
+        student_id = int(input("Enter Student ID to remove: "))
+        
+        if student_id in self.students:
+            confirmation = input(f"Are you sure you want to delete {self.students[student_id]['name']}? (y/n): ")
+            if confirmation.lower() == 'y':
+                del self.students[student_id]
+                print(f"Student '{self.students[student_id]['name']}' removed successfully!\n")
+            else:
+                print("Deletion canceled.\n")
+        else:
+            print("Student not found.\n")
+
+    def view_all_students(self):
+        # View all students currently stored in the system
+        if self.students:
+            print("\n--- All Students ---")
+            for student_id, details in self.students.items():
+                print(f"ID: {student_id}, Name: {details['name']}, Age: {details['age']}, City: {details['city']}, Course: {details['course']}")
+        else:
+            print("No student records found.\n")
+
+    def view_specific_student(self):
+        # View specific student details by student ID
+        print("\n--- View Specific Student ---")
+        student_id = int(input("Enter Student ID to view: "))
+        
+        if student_id in self.students:
+            details = self.students[student_id]
+            print(f"\nFound Student: ID: {student_id}, Name: {details['name']}, Age: {details['age']}, City: {details['city']}, Course: {details['course']}\n")
+        else:
+            print("Student not found.\n")
+
+
+# Presentation Layer (UI/UX)
+class Counselor:
+    def __init__(self):
+        # Counselor functionality
+        self.manager = StudentManager()
+
+    def show_counselor_menu(self):
+        # Display counselor's menu options
+        while True:
+            print("\n===== Counselor's Menu =====")
+            print("1. Add Student")
+            print("2. Remove Student")
+            print("3. View All Students")
+            print("4. View Specific Student")
+            print("5. Exit")
+
+            choice = input("Enter choice (1-5): ")
+
+            if choice == '1':
+                self.manager.add_student()
+            elif choice == '2':
+                self.manager.remove_student()
+            elif choice == '3':
+                self.manager.view_all_students()
+            elif choice == '4':
+                self.manager.view_specific_student()
+            elif choice == '5':
+                print("\nExiting Counselor's Menu...\n")
+                break
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 5.\n")
+
+
+# Main Application - Simulating Counselor Login and Role Access
+def main():
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Counselor.")
+
+    # Simulate login (in real applications, this would involve more robust authentication)
+    counselor_username = input("Enter Counselor Username: ")
+    counselor_password = input("Enter Counselor Password: ")
+
+    # Hardcoded credentials for demonstration (you can replace this with actual logic)
+    if counselor_username == "counselor" and counselor_password == "password":
+        print("\nLogin successful! Welcome, Counselor.")
+        counselor = Counselor()
+        counselor.show_counselor_menu()
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Login Screen:
+Welcome to the Student Management System!
+Please log in as a Counselor.
+Enter Counselor Username: counselor
+Enter Counselor Password: password
+
+Login successful! Welcome, Counselor.
+
+Counselor's Menu:
+===== Counselor's Menu =====
+1. Add Student
+2. Remove Student
+3. View All Students
+4. View Specific Student
+5. Exit
+Enter choice (1-5):
+
+Add Student Example:
+--- Add New Student ---
+Enter Name: Alice
+Enter Age: 22
+Enter City: Los Angeles
+Enter Course: Data Science
+
+Student 'Alice' added successfully with ID 1!
+
+Remove Student Example:
+--- Remove Student ---
+Enter Student ID to remove: 1
+Are you sure you want to delete Alice? (y/n): y
+Student 'Alice' removed successfully!
+
+View All Students Example:
+--- All Students ---
+ID: 1, Name: Alice, Age: 22, City: Los Angeles, Course: Data Science
+
+View Specific Student Example:
+--- View Specific Student ---
+Enter Student ID to view: 1
+Found Student: ID: 1, Name: Alice, Age: 22, City: Los Angeles, Course: Data Science
+
+Q: Make sure this code implements using nested dictionary
+
+answer: class StudentManager:
+    def __init__(self):
+        # In-memory dictionary to store students, now with nested dictionaries
+        # The outer dictionary's key is the student_id, and the value is another dictionary
+        # that contains the student's information and nested details.
+        self.students = {}  # Format: {student_id: {'name': 'John', 'details': {'age': 20, 'city': 'New York', 'course': 'CS'}}}
+        self.student_id_counter = 1  # To keep track of the next available student ID
+
+    def add_student(self):
+        # Dynamically add a student
+        print("\n--- Add New Student ---")
+        name = input("Enter Name: ")
+        age = int(input("Enter Age: "))
+        city = input("Enter City: ")
+        course = input("Enter Course: ")
+
+        # Store student data in a nested dictionary format with a unique student ID
+        student_id = self.student_id_counter
+        self.students[student_id] = {
+            'name': name,
+            'details': {
+                'age': age,
+                'city': city,
+                'course': course
+            }
+        }
+
+        # Increment student ID counter for the next student
+        self.student_id_counter += 1
+        print(f"\nStudent '{name}' added successfully with ID {student_id}!\n")
+
+    def remove_student(self):
+        # Remove a student by student ID
+        print("\n--- Remove Student ---")
+        student_id = int(input("Enter Student ID to remove: "))
+        
+        if student_id in self.students:
+            confirmation = input(f"Are you sure you want to delete {self.students[student_id]['name']}? (y/n): ")
+            if confirmation.lower() == 'y':
+                del self.students[student_id]
+                print(f"Student '{self.students[student_id]['name']}' removed successfully!\n")
+            else:
+                print("Deletion canceled.\n")
+        else:
+            print("Student not found.\n")
+
+    def view_all_students(self):
+        # View all students currently stored in the system
+        if self.students:
+            print("\n--- All Students ---")
+            for student_id, details in self.students.items():
+                student_name = details['name']
+                student_details = details['details']
+                print(f"ID: {student_id}, Name: {student_name}, Age: {student_details['age']}, City: {student_details['city']}, Course: {student_details['course']}")
+        else:
+            print("No student records found.\n")
+
+    def view_specific_student(self):
+        # View specific student details by student ID
+        print("\n--- View Specific Student ---")
+        student_id = int(input("Enter Student ID to view: "))
+        
+        if student_id in self.students:
+            student_details = self.students[student_id]
+            name = student_details['name']
+            details = student_details['details']
+            print(f"\nFound Student: ID: {student_id}, Name: {name}, Age: {details['age']}, City: {details['city']}, Course: {details['course']}\n")
+        else:
+            print("Student not found.\n")
+
+
+# Presentation Layer (UI/UX)
+class Counselor:
+    def __init__(self):
+        # Counselor functionality
+        self.manager = StudentManager()
+
+    def show_counselor_menu(self):
+        # Display counselor's menu options
+        while True:
+            print("\n===== Counselor's Menu =====")
+            print("1. Add Student")
+            print("2. Remove Student")
+            print("3. View All Students")
+            print("4. View Specific Student")
+            print("5. Exit")
+
+            choice = input("Enter choice (1-5): ")
+
+            if choice == '1':
+                self.manager.add_student()
+            elif choice == '2':
+                self.manager.remove_student()
+            elif choice == '3':
+                self.manager.view_all_students()
+            elif choice == '4':
+                self.manager.view_specific_student()
+            elif choice == '5':
+                print("\nExiting Counselor's Menu...\n")
+                break
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 5.\n")
+
+
+# Main Application - Simulating Counselor Login and Role Access
+def main():
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Counselor.")
+
+    # Simulate login (in real applications, this would involve more robust authentication)
+    counselor_username = input("Enter Counselor Username: ")
+    counselor_password = input("Enter Counselor Password: ")
+
+    # Hardcoded credentials for demonstration (you can replace this with actual logic)
+    if counselor_username == "counselor" and counselor_password == "password":
+        print("\nLogin successful! Welcome, Counselor.")
+        counselor = Counselor()
+        counselor.show_counselor_menu()
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Key Changes:
+Nested Dictionary Structure:
+
+Each student is now represented by a unique student ID.
+
+The student's personal information (name, age, city, and course) is stored inside a nested dictionary under the key 'details'. For example:
+
+self.students[student_id] = {
+    'name': 'John Doe',
+    'details': {
+        'age': 20,
+        'city': 'New York',
+        'course': 'Computer Science'
+    }
+}
+
+Data Handling:
+
+When viewing or adding student data, we access the nested dictionary by referring to the 'details' key. This allows us to structure data hierarchically and store more complex information for each student.
+
+Dynamic Interaction:
+
+The user can interact with the program dynamically, adding, removing, and viewing students based on the student ID, and the nested dictionary allows storing and organizing detailed information for each student.
+
+Login Screen:
+
+Welcome to the Student Management System!
+Please log in as a Counselor.
+Enter Counselor Username: counselor
+Enter Counselor Password: password
+
+Login successful! Welcome, Counselor.
+
+Counselor's Menu:
+===== Counselor's Menu =====
+1. Add Student
+2. Remove Student
+3. View All Students
+4. View Specific Student
+5. Exit
+Enter choice (1-5):
+
+Add Student Example:
+--- Add New Student ---
+Enter Name: Alice
+Enter Age: 22
+Enter City: Los Angeles
+Enter Course: Data Science
+
+Student 'Alice' added successfully with ID 1!
+
+Remove Student Example:
+--- Remove Student ---
+Enter Student ID to remove: 1
+Are you sure you want to delete Alice? (y/n): y
+Student 'Alice' removed successfully!
+
+View All Students Example:
+--- All Students ---
+ID: 1, Name: Alice, Age: 22, City: Los Angeles, Course: Data Science
+
+View Specific Student Example:
+--- View Specific Student ---
+Enter Student ID to view: 1
+Found Student: ID: 1, Name: Alice, Age: 22, City: Los Angeles, Course: Data Science
+
+Q: make sure specific student can only search by id - any appropriate validation if
+user entered wrong input - if id doesn’t fetch data from dictionary display user
+does not exist
+
+answer: class StudentManager:
+    def __init__(self):
+        # In-memory dictionary to store students, now with nested dictionaries
+        self.students = {}  # Format: {student_id: {'name': 'John', 'details': {'age': 20, 'city': 'New York', 'course': 'CS'}}}
+        self.student_id_counter = 1  # To keep track of the next available student ID
+
+    def add_student(self):
+        # Dynamically add a student
+        print("\n--- Add New Student ---")
+        name = input("Enter Name: ")
+        age = int(input("Enter Age: "))
+        city = input("Enter City: ")
+        course = input("Enter Course: ")
+
+        # Store student data in a nested dictionary format with a unique student ID
+        student_id = self.student_id_counter
+        self.students[student_id] = {
+            'name': name,
+            'details': {
+                'age': age,
+                'city': city,
+                'course': course
+            }
+        }
+
+        # Increment student ID counter for the next student
+        self.student_id_counter += 1
+        print(f"\nStudent '{name}' added successfully with ID {student_id}!\n")
+
+    def remove_student(self):
+        # Remove a student by student ID
+        print("\n--- Remove Student ---")
+        student_id = self.get_valid_student_id("Enter Student ID to remove: ")
+        
+        if student_id is not None and student_id in self.students:
+            confirmation = input(f"Are you sure you want to delete {self.students[student_id]['name']}? (y/n): ")
+            if confirmation.lower() == 'y':
+                del self.students[student_id]
+                print(f"Student '{self.students[student_id]['name']}' removed successfully!\n")
+            else:
+                print("Deletion canceled.\n")
+        else:
+            print("Student not found.\n")
+
+    def view_all_students(self):
+        # View all students currently stored in the system
+        if self.students:
+            print("\n--- All Students ---")
+            for student_id, details in self.students.items():
+                student_name = details['name']
+                student_details = details['details']
+                print(f"ID: {student_id}, Name: {student_name}, Age: {student_details['age']}, City: {student_details['city']}, Course: {student_details['course']}")
+        else:
+            print("No student records found.\n")
+
+    def view_specific_student(self):
+        # View specific student details by student ID
+        print("\n--- View Specific Student ---")
+        student_id = self.get_valid_student_id("Enter Student ID to view: ")
+        
+        if student_id is not None and student_id in self.students:
+            student_details = self.students[student_id]
+            name = student_details['name']
+            details = student_details['details']
+            print(f"\nFound Student: ID: {student_id}, Name: {name}, Age: {details['age']}, City: {details['city']}, Course: {details['course']}\n")
+        else:
+            print("Student does not exist.\n")
+
+    def get_valid_student_id(self, prompt):
+        """
+        A helper function to get a valid student ID (numeric) from the user.
+        If the input is invalid or non-numeric, it will keep prompting the user.
+        """
+        while True:
+            try:
+                student_id = int(input(prompt))  # Attempt to convert input to integer
+                return student_id
+            except ValueError:
+                print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+
+# Presentation Layer (UI/UX)
+class Counselor:
+    def __init__(self):
+        # Counselor functionality
+        self.manager = StudentManager()
+
+    def show_counselor_menu(self):
+        # Display counselor's menu options
+        while True:
+            print("\n===== Counselor's Menu =====")
+            print("1. Add Student")
+            print("2. Remove Student")
+            print("3. View All Students")
+            print("4. View Specific Student")
+            print("5. Exit")
+
+            choice = input("Enter choice (1-5): ")
+
+            if choice == '1':
+                self.manager.add_student()
+            elif choice == '2':
+                self.manager.remove_student()
+            elif choice == '3':
+                self.manager.view_all_students()
+            elif choice == '4':
+                self.manager.view_specific_student()
+            elif choice == '5':
+                print("\nExiting Counselor's Menu...\n")
+                break
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 5.\n")
+
+
+# Main Application - Simulating Counselor Login and Role Access
+def main():
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Counselor.")
+
+    # Simulate login (in real applications, this would involve more robust authentication)
+    counselor_username = input("Enter Counselor Username: ")
+    counselor_password = input("Enter Counselor Password: ")
+
+    # Hardcoded credentials for demonstration (you can replace this with actual logic)
+    if counselor_username == "counselor" and counselor_password == "password":
+        print("\nLogin successful! Welcome, Counselor.")
+        counselor = Counselor()
+        counselor.show_counselor_menu()
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Key Updates:
+Input Validation for Student ID:
+
+A helper function get_valid_student_id is added to ensure that the user inputs a valid student ID. If the user enters a non-numeric value, it will keep prompting the user until a valid integer is provided.
+
+def get_valid_student_id(self, prompt):
+    while True:
+        try:
+            student_id = int(input(prompt))  # Attempt to convert input to integer
+            return student_id
+        except ValueError:
+            print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+Handling Non-Existing Student IDs:
+
+If the entered student ID doesn't exist in the dictionary, the program will now display "Student does not exist" instead of crashing or showing undefined behavior.
+
+Improved User Feedback:
+
+The user is given clear feedback if they attempt to remove or view a student with an invalid or non-existent ID.
+
+View Specific Student (Valid ID):
+--- View Specific Student ---
+Enter Student ID to view: 1
+Found Student: ID: 1, Name: Alice, Age: 22, City: Los Angeles, Course: Data Science
+
+View Specific Student (Invalid ID):
+--- View Specific Student ---
+Enter Student ID to view: 999
+Student does not exist.
+
+Invalid Student ID Input (Non-Numeric):
+Enter Student ID to view: abc
+Invalid input! Please enter a valid student ID (a numeric value).
+
+Q: create separate file for all business logics and make them reusable - use
+modules concepts for implements above logic
+
+answer:Create the Business Logic Module (student_manager.py)
+This file will contain all the logic for adding, removing, viewing, and managing students in a reusable module.
+# student_manager.py
+
+class StudentManager:
+    def __init__(self):
+        # In-memory dictionary to store students, now with nested dictionaries
+        self.students = {}  # Format: {student_id: {'name': 'John', 'details': {'age': 20, 'city': 'New York', 'course': 'CS'}}}
+        self.student_id_counter = 1  # To keep track of the next available student ID
+
+    def add_student(self, name, age, city, course):
+        """
+        Add a new student to the system.
+        Arguments:
+        - name: str : Student's name
+        - age: int : Student's age
+        - city: str : Student's city
+        - course: str : Student's course
+        """
+        # Store student data in a nested dictionary format with a unique student ID
+        student_id = self.student_id_counter
+        self.students[student_id] = {
+            'name': name,
+            'details': {
+                'age': age,
+                'city': city,
+                'course': course
+            }
+        }
+
+        # Increment student ID counter for the next student
+        self.student_id_counter += 1
+        return student_id  # Return the student ID for confirmation
+
+    def remove_student(self, student_id):
+        """
+        Remove a student by student ID.
+        Arguments:
+        - student_id: int : ID of the student to remove
+        """
+        if student_id in self.students:
+            del self.students[student_id]
+            return True
+        else:
+            return False
+
+    def view_all_students(self):
+        """
+        Return a list of all students.
+        """
+        return self.students
+
+    def view_specific_student(self, student_id):
+        """
+        Return details of a specific student.
+        Arguments:
+        - student_id: int : ID of the student to view
+        """
+        if student_id in self.students:
+            return self.students[student_id]
+        else:
+            return None
+
+    def get_valid_student_id(self, prompt):
+        """
+        A helper function to get a valid student ID (numeric) from the user.
+        If the input is invalid or non-numeric, it will keep prompting the user.
+        """
+        while True:
+            try:
+                student_id = int(input(prompt))  # Attempt to convert input to integer
+                return student_id
+            except ValueError:
+                print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+
+Create the Main Interface (main.py)
+This file will interact with the user and use the functions provided by the student_manager.py module. The business logic is now encapsulated in the StudentManager class, making the code cleaner and more reusable.
+
+# main.py
+from student_manager import StudentManager
+
+class Counselor:
+    def __init__(self):
+        # Counselor functionality
+        self.manager = StudentManager()
+
+    def show_counselor_menu(self):
+        # Display counselor's menu options
+        while True:
+            print("\n===== Counselor's Menu =====")
+            print("1. Add Student")
+            print("2. Remove Student")
+            print("3. View All Students")
+            print("4. View Specific Student")
+            print("5. Exit")
+
+            choice = input("Enter choice (1-5): ")
+
+            if choice == '1':
+                self.add_student()
+            elif choice == '2':
+                self.remove_student()
+            elif choice == '3':
+                self.view_all_students()
+            elif choice == '4':
+                self.view_specific_student()
+            elif choice == '5':
+                print("\nExiting Counselor's Menu...\n")
+                break
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 5.\n")
+
+    def add_student(self):
+        # Add a new student
+        print("\n--- Add New Student ---")
+        name = input("Enter Name: ")
+        age = int(input("Enter Age: "))
+        city = input("Enter City: ")
+        course = input("Enter Course: ")
+
+        student_id = self.manager.add_student(name, age, city, course)
+        print(f"\nStudent '{name}' added successfully with ID {student_id}!\n")
+
+    def remove_student(self):
+        # Remove a student
+        print("\n--- Remove Student ---")
+        student_id = self.manager.get_valid_student_id("Enter Student ID to remove: ")
+        
+        if self.manager.remove_student(student_id):
+            print(f"\nStudent with ID {student_id} has been removed successfully.\n")
+        else:
+            print("\nStudent not found.\n")
+
+    def view_all_students(self):
+        # View all students
+        print("\n--- All Students ---")
+        students = self.manager.view_all_students()
+        if students:
+            for student_id, details in students.items():
+                student_name = details['name']
+                student_details = details['details']
+                print(f"ID: {student_id}, Name: {student_name}, Age: {student_details['age']}, City: {student_details['city']}, Course: {student_details['course']}")
+        else:
+            print("No student records found.\n")
+
+    def view_specific_student(self):
+        # View specific student details
+        print("\n--- View Specific Student ---")
+        student_id = self.manager.get_valid_student_id("Enter Student ID to view: ")
+        
+        student = self.manager.view_specific_student(student_id)
+        if student:
+            student_details = student['details']
+            print(f"\nFound Student: ID: {student_id}, Name: {student['name']}, Age: {student_details['age']}, City: {student_details['city']}, Course: {student_details['course']}\n")
+        else:
+            print("Student does not exist.\n")
+
+# Main Application - Simulating Counselor Login and Role Access
+def main():
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Counselor.")
+
+    # Simulate login (in real applications, this would involve more robust authentication)
+    counselor_username = input("Enter Counselor Username: ")
+    counselor_password = input("Enter Counselor Password: ")
+
+    # Hardcoded credentials for demonstration (you can replace this with actual logic)
+    if counselor_username == "counselor" and counselor_password == "password":
+        print("\nLogin successful! Welcome, Counselor.")
+        counselor = Counselor()
+        counselor.show_counselor_menu()
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Running the Code:
+Step 1: Create two files:
+
+student_manager.py (for business logic)
+
+main.py (for user interaction)
+
+Step 2: To run the program, execute the main.py script:
+
+python main.py
+
+Login:
+Welcome to the Student Management System!
+Please log in as a Counselor.
+Enter Counselor Username: counselor
+Enter Counselor Password: password
+
+Login successful! Welcome, Counselor.
+
+Counselor's Menu:
+===== Counselor's Menu =====
+1. Add Student
+2. Remove Student
+3. View All Students
+4. View Specific Student
+5. Exit
+Enter choice (1-5):
+
+Q: Make sure validation proper given - on contact number and first name - display
+appropriate message if user enter invalid input and accept values again and
+again - use looping concepts and string inbuilt methods concepts in this logic
+implementation
+
+answer: Updated student_manager.py with Input Validation
+student_manager.py
+
+# student_manager.py
+
+class StudentManager:
+    def __init__(self):
+        self.students = {}
+        self.student_id_counter = 1
+
+    def add_student(self, name, age, city, course, contact):
+        """
+        Add a new student to the system.
+        """
+        student_id = self.student_id_counter
+        self.students[student_id] = {
+            'name': name,
+            'details': {
+                'age': age,
+                'city': city,
+                'course': course,
+                'contact': contact
+            }
+        }
+        self.student_id_counter += 1
+        return student_id
+
+    def remove_student(self, student_id):
+        if student_id in self.students:
+            del self.students[student_id]
+            return True
+        return False
+
+    def view_all_students(self):
+        return self.students
+
+    def view_specific_student(self, student_id):
+        if student_id in self.students:
+            return self.students[student_id]
+        return None
+
+    def get_valid_student_id(self, prompt):
+        while True:
+            try:
+                student_id = int(input(prompt))
+                return student_id
+            except ValueError:
+                print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+
+    def validate_first_name(self):
+        while True:
+            first_name = input("Enter First Name: ").strip()
+            if first_name and first_name.isalpha():
+                return first_name
+            else:
+                print("Invalid input! First name should contain only alphabetic characters and cannot be empty.\n")
+
+    def validate_contact_number(self):
+        while True:
+            contact_number = input("Enter Contact Number (10 digits): ").strip()
+            if contact_number.isdigit() and len(contact_number) == 10:
+                return contact_number
+            else:
+                print("Invalid contact number! It should contain exactly 10 digits.\n")
+
+Updated main.py for User Interaction
+In this script, we will prompt the user for their name and contact number using the validation methods from the StudentManager class.
+# main.py
+from student_manager import StudentManager
+
+class Counselor:
+    def __init__(self):
+        self.manager = StudentManager()
+
+    def show_counselor_menu(self):
+        while True:
+            print("\n===== Counselor's Menu =====")
+            print("1. Add Student")
+            print("2. Remove Student")
+            print("3. View All Students")
+            print("4. View Specific Student")
+            print("5. Exit")
+
+            choice = input("Enter choice (1-5): ")
+
+            if choice == '1':
+                self.add_student()
+            elif choice == '2':
+                self.remove_student()
+            elif choice == '3':
+                self.view_all_students()
+            elif choice == '4':
+                self.view_specific_student()
+            elif choice == '5':
+                print("\nExiting Counselor's Menu...\n")
+                break
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 5.\n")
+
+    def add_student(self):
+        print("\n--- Add New Student ---")
+        
+        # Using the validate methods to ensure correct input
+        first_name = self.manager.validate_first_name()
+        age = int(input("Enter Age: "))
+        city = input("Enter City: ")
+        course = input("Enter Course: ")
+        contact_number = self.manager.validate_contact_number()
+
+        # Add the student to the system
+        student_id = self.manager.add_student(first_name, age, city, course, contact_number)
+        print(f"\nStudent '{first_name}' added successfully with ID {student_id}!\n")
+
+    def remove_student(self):
+        print("\n--- Remove Student ---")
+        student_id = self.manager.get_valid_student_id("Enter Student ID to remove: ")
+        
+        if self.manager.remove_student(student_id):
+            print(f"\nStudent with ID {student_id} has been removed successfully.\n")
+        else:
+            print("\nStudent not found.\n")
+
+    def view_all_students(self):
+        print("\n--- All Students ---")
+        students = self.manager.view_all_students()
+        if students:
+            for student_id, details in students.items():
+                student_name = details['name']
+                student_details = details['details']
+                print(f"ID: {student_id}, Name: {student_name}, Age: {student_details['age']}, City: {student_details['city']}, Course: {student_details['course']}, Contact: {student_details['contact']}")
+        else:
+            print("No student records found.\n")
+
+    def view_specific_student(self):
+        print("\n--- View Specific Student ---")
+        student_id = self.manager.get_valid_student_id("Enter Student ID to view: ")
+        
+        student = self.manager.view_specific_student(student_id)
+        if student:
+            student_details = student['details']
+            print(f"\nFound Student: ID: {student_id}, Name: {student['name']}, Age: {student_details['age']}, City: {student_details['city']}, Course: {student_details['course']}, Contact: {student_details['contact']}\n")
+        else:
+            print("Student does not exist.\n")
+
+def main():
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Counselor.")
+
+    counselor_username = input("Enter Counselor Username: ")
+    counselor_password = input("Enter Counselor Password: ")
+
+    if counselor_username == "counselor" and counselor_password == "password":
+        print("\nLogin successful! Welcome, Counselor.")
+        counselor = Counselor()
+        counselor.show_counselor_menu()
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+Key Changes:
+First Name Validation:
+
+The first name is validated to ensure it only contains alphabetic characters and is not empty. This is achieved using isalpha() string method:
+def validate_first_name(self):
+    while True:
+        first_name = input("Enter First Name: ").strip()
+        if first_name and first_name.isalpha():
+            return first_name
+        else:
+            print("Invalid input! First name should contain only alphabetic characters and cannot be empty.\n")
+
+Contact Number Validation:
+
+The contact number is validated to ensure it is exactly 10 digits long and contains only numeric characters using the isdigit() string method:
+def validate_contact_number(self):
+    while True:
+        contact_number = input("Enter Contact Number (10 digits): ").strip()
+        if contact_number.isdigit() and len(contact_number) == 10:
+            return contact_number
+        else:
+            print("Invalid contact number! It should contain exactly 10 digits.\n")
+
+Adding a Student:
+--- Add New Student ---
+Enter First Name: John
+Enter Age: 22
+Enter City: New York
+Enter Course: Computer Science
+Enter Contact Number (10 digits): 1234567890
+
+Student 'John' added successfully with ID 1!
+
+Invalid Input (First Name):
+Enter First Name: John123
+Invalid input! First name should contain only alphabetic characters and cannot be empty.
+Enter First Name: 
+
+Invalid Input (Contact Number):
+Enter Contact Number (10 digits): abc123
+Invalid contact number! It should contain exactly 10 digits.
+Enter Contact Number (10 digits): 12345
+Invalid contact number! It should contain exactly 10 digits.
+Enter Contact Number (10 digits): 9876543210
+
+Q: Make sure code prevent from unexpected exception
+E.g. in contact number users can’t be able to enter character value if.. Enter
+Character value - return to the previous menu and accept all details again.
+
+answer: Updated student_manager.py with Exception Handling
+student_manager.py
+# student_manager.py
+
+class StudentManager:
+    def __init__(self):
+        self.students = {}
+        self.student_id_counter = 1
+
+    def add_student(self, name, age, city, course, contact):
+        """
+        Add a new student to the system.
+        """
+        student_id = self.student_id_counter
+        self.students[student_id] = {
+            'name': name,
+            'details': {
+                'age': age,
+                'city': city,
+                'course': course,
+                'contact': contact
+            }
+        }
+        self.student_id_counter += 1
+        return student_id
+
+    def remove_student(self, student_id):
+        if student_id in self.students:
+            del self.students[student_id]
+            return True
+        return False
+
+    def view_all_students(self):
+        return self.students
+
+    def view_specific_student(self, student_id):
+        if student_id in self.students:
+            return self.students[student_id]
+        return None
+
+    def get_valid_student_id(self, prompt):
+        while True:
+            try:
+                student_id = int(input(prompt))
+                return student_id
+            except ValueError:
+                print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+
+    def validate_first_name(self):
+        while True:
+            first_name = input("Enter First Name: ").strip()
+            if first_name and first_name.isalpha():
+                return first_name
+            else:
+                print("Invalid input! First name should contain only alphabetic characters and cannot be empty.\n")
+
+    def validate_contact_number(self):
+        while True:
+            contact_number = input("Enter Contact Number (10 digits): ").strip()
+            try:
+                if not contact_number.isdigit():
+                    raise ValueError("Contact number should only contain digits.")
+                if len(contact_number) != 10:
+                    raise ValueError("Contact number should be exactly 10 digits long.")
+                return contact_number
+            except ValueError as e:
+                print(f"Invalid input! {e}")
+                print("Returning to previous menu...\n")
+                return None  # Returning None to indicate an invalid input and return to the previous menu
+
+Updated main.py for User Interaction with Error Handling
+In this script, we will check the result of contact number validation. If the result is None (indicating invalid input), we will return to the previous menu and ask the user to input the details again.
+
+# main.py
+from student_manager import StudentManager
+
+class Counselor:
+    def __init__(self):
+        self.manager = StudentManager()
+
+    def show_counselor_menu(self):
+        while True:
+            print("\n===== Counselor's Menu =====")
+            print("1. Add Student")
+            print("2. Remove Student")
+            print("3. View All Students")
+            print("4. View Specific Student")
+            print("5. Exit")
+
+            choice = input("Enter choice (1-5): ")
+
+            if choice == '1':
+                self.add_student()
+            elif choice == '2':
+                self.remove_student()
+            elif choice == '3':
+                self.view_all_students()
+            elif choice == '4':
+                self.view_specific_student()
+            elif choice == '5':
+                print("\nExiting Counselor's Menu...\n")
+                break
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 5.\n")
+
+    def add_student(self):
+        while True:
+            print("\n--- Add New Student ---")
+            first_name = self.manager.validate_first_name()  # Validate first name
+            age = int(input("Enter Age: "))
+            city = input("Enter City: ")
+            course = input("Enter Course: ")
+
+            # Validate the contact number and handle errors
+            contact_number = self.manager.validate_contact_number()
+
+            # If contact number is invalid, return to the previous menu
+            if contact_number is None:
+                print("\nPlease enter all details again.\n")
+                continue
+
+            # Add the student to the system if all inputs are valid
+            student_id = self.manager.add_student(first_name, age, city, course, contact_number)
+            print(f"\nStudent '{first_name}' added successfully with ID {student_id}!\n")
+            break  # Exit the loop once the student is successfully added
+
+    def remove_student(self):
+        print("\n--- Remove Student ---")
+        student_id = self.manager.get_valid_student_id("Enter Student ID to remove: ")
+        
+        if self.manager.remove_student(student_id):
+            print(f"\nStudent with ID {student_id} has been removed successfully.\n")
+        else:
+            print("\nStudent not found.\n")
+
+    def view_all_students(self):
+        print("\n--- All Students ---")
+        students = self.manager.view_all_students()
+        if students:
+            for student_id, details in students.items():
+                student_name = details['name']
+                student_details = details['details']
+                print(f"ID: {student_id}, Name: {student_name}, Age: {student_details['age']}, City: {student_details['city']}, Course: {student_details['course']}, Contact: {student_details['contact']}")
+        else:
+            print("No student records found.\n")
+
+    def view_specific_student(self):
+        print("\n--- View Specific Student ---")
+        student_id = self.manager.get_valid_student_id("Enter Student ID to view: ")
+        
+        student = self.manager.view_specific_student(student_id)
+        if student:
+            student_details = student['details']
+            print(f"\nFound Student: ID: {student_id}, Name: {student['name']}, Age: {student_details['age']}, City: {student_details['city']}, Course: {student_details['course']}, Contact: {student_details['contact']}\n")
+        else:
+            print("Student does not exist.\n")
+
+def main():
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Counselor.")
+
+    counselor_username = input("Enter Counselor Username: ")
+    counselor_password = input("Enter Counselor Password: ")
+
+    if counselor_username == "counselor" and counselor_password == "password":
+        print("\nLogin successful! Welcome, Counselor.")
+        counselor = Counselor()
+        counselor.show_counselor_menu()
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Key Changes:
+Improved Contact Number Validation:
+
+We wrapped the contact number validation inside a try-except block to catch ValueError exceptions when the input is invalid.
+
+If the contact number is invalid, we return None and the system prompts the user to input all details again.
+
+def validate_contact_number(self):
+    while True:
+        contact_number = input("Enter Contact Number (10 digits): ").strip()
+        try:
+            if not contact_number.isdigit():
+                raise ValueError("Contact number should only contain digits.")
+            if len(contact_number) != 10:
+                raise ValueError("Contact number should be exactly 10 digits long.")
+            return contact_number
+        except ValueError as e:
+            print(f"Invalid input! {e}")
+            print("Returning to previous menu...\n")
+            return None  # Returning None to indicate invalid input
+
+Looping for Invalid Inputs:
+
+If the contact number validation fails, we continue the loop in the add_student() method, ensuring that all details need to be re-entered.
+
+This prevents any incomplete or incorrect data from being added to the system
+
+Invalid Contact Number (Character Input):
+
+Enter Contact Number (10 digits): abc123
+Invalid input! Contact number should only contain digits.
+Returning to previous menu...
+
+Please enter all details again.
+
+--- Add New Student ---
+Enter First Name: John
+Enter Age: 25
+Enter City: New York
+Enter Course: Computer Science
+Enter Contact Number (10 digits): abc123
+Invalid input! Contact number should only contain digits.
+Returning to previous menu...
+
+Please enter all details again.
+
+Valid Contact Number:
+Enter Contact Number (10 digits): 1234567890
+Student 'John' added successfully with ID 1!
+
+Q: faculty can add students marks - make sure faculty can view and access own
+students only
+
+answer: Updated System Implementation:
+1. Updated student_manager.py with Faculty Integration
+We will modify the StudentManager class to include faculty functionality and the ability to associate students with specific faculty.
+
+# student_manager.py
+
+class StudentManager:
+    def __init__(self):
+        self.students = {}
+        self.faculty_members = {}  # Dictionary to store faculty information
+        self.student_id_counter = 1
+        self.faculty_id_counter = 1
+
+    def add_faculty(self, faculty_name, username, password):
+        """
+        Add a new faculty member to the system.
+        """
+        faculty_id = self.faculty_id_counter
+        self.faculty_members[faculty_id] = {
+            'name': faculty_name,
+            'username': username,
+            'password': password,
+            'assigned_students': []  # Faculty can have assigned students
+        }
+        self.faculty_id_counter += 1
+        return faculty_id
+
+    def add_student(self, name, age, city, course, contact, faculty_id):
+        """
+        Add a new student and associate them with a specific faculty member.
+        """
+        student_id = self.student_id_counter
+        self.students[student_id] = {
+            'name': name,
+            'details': {
+                'age': age,
+                'city': city,
+                'course': course,
+                'contact': contact,
+                'marks': None  # Initially no marks
+            },
+            'faculty_id': faculty_id  # Associate student with faculty
+        }
+        self.faculty_members[faculty_id]['assigned_students'].append(student_id)
+        self.student_id_counter += 1
+        return student_id
+
+    def get_student_by_id(self, student_id):
+        return self.students.get(student_id, None)
+
+    def add_marks(self, faculty_id, student_id, marks):
+        """
+        Add marks for a student. Faculty can add marks only to their own students.
+        """
+        student = self.get_student_by_id(student_id)
+        if student and student['faculty_id'] == faculty_id:
+            student['details']['marks'] = marks
+            return True
+        return False
+
+    def view_students_of_faculty(self, faculty_id):
+        """
+        View all students assigned to a specific faculty.
+        """
+        student_list = []
+        for student_id in self.faculty_members[faculty_id]['assigned_students']:
+            student_list.append(self.get_student_by_id(student_id))
+        return student_list
+
+Updated main.py to Include Faculty Login, Adding Marks, and Viewing Students
+We will update the main script to include functionality for faculty login, adding marks for students, and allowing the faculty to view their assigned students.
+
+# main.py
+from student_manager import StudentManager
+
+class Faculty:
+    def __init__(self):
+        self.manager = StudentManager()
+
+    def show_faculty_menu(self, faculty_id):
+        while True:
+            print("\n===== Faculty Menu =====")
+            print("1. Add Marks for a Student")
+            print("2. View All Students Assigned to Me")
+            print("3. Exit")
+
+            choice = input("Enter choice (1-3): ")
+
+            if choice == '1':
+                self.add_marks(faculty_id)
+            elif choice == '2':
+                self.view_all_students(faculty_id)
+            elif choice == '3':
+                print("\nExiting Faculty Menu...\n")
+                break
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 3.\n")
+
+    def add_marks(self, faculty_id):
+        print("\n--- Add Marks for a Student ---")
+        student_id = self.get_valid_student_id("Enter Student ID: ")
+
+        marks = input("Enter Marks: ")
+        try:
+            marks = float(marks)
+        except ValueError:
+            print("Invalid marks input. Marks should be a number.")
+            return
+        
+        if self.manager.add_marks(faculty_id, student_id, marks):
+            print(f"\nMarks for Student ID {student_id} have been successfully added.\n")
+        else:
+            print("You are not authorized to add marks for this student.\n")
+
+    def view_all_students(self, faculty_id):
+        print("\n--- Your Assigned Students ---")
+        students = self.manager.view_students_of_faculty(faculty_id)
+        if students:
+            for student in students:
+                student_details = student['details']
+                print(f"ID: {student}, Name: {student['name']}, Age: {student_details['age']}, "
+                      f"Course: {student_details['course']}, Marks: {student_details['marks']}")
+        else:
+            print("You do not have any students assigned.\n")
+
+    def get_valid_student_id(self, prompt):
+        while True:
+            try:
+                student_id = int(input(prompt))
+                return student_id
+            except ValueError:
+                print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+
+def main():
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Faculty.")
+
+    # Sample Faculty Credentials
+    faculty_username = "faculty1"
+    faculty_password = "password"
+
+    # Create an instance of the Faculty class
+    faculty_system = Faculty()
+
+    # Hardcoded for demonstration
+    faculty_id = faculty_system.manager.add_faculty("Dr. Smith", faculty_username, faculty_password)
+
+    # Faculty login simulation
+    print("\nFaculty Login:")
+    username = input("Enter Username: ")
+    password = input("Enter Password: ")
+
+    if username == faculty_username and password == faculty_password:
+        print("\nLogin successful! Welcome, Faculty.")
+        faculty_system.show_faculty_menu(faculty_id)
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Faculty Login:
+Welcome to the Student Management System!
+Please log in as a Faculty.
+
+Faculty Login:
+Enter Username: faculty1
+Enter Password: password
+
+Login successful! Welcome, Faculty.
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Exit
+Enter choice (1-3): 1
+
+--- Add Marks for a Student ---
+Enter Student ID: 1
+Enter Marks: 85
+
+Marks for Student ID 1 have been successfully added.
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Exit
+Enter choice (1-3): 2
+
+--- Your Assigned Students ---
+ID: 1, Name: John, Age: 22, Course: Computer Science, Marks: 85.0
+
+Unauthorized Attempt (If Faculty Tries to Access Other Faculty's Students):
+You are not authorized to add marks for this student.
+
+Q: Generate a log file and store all transaction details in that log file.
+
+answer: Code Implementation:
+We’ll modify the StudentManager and Faculty classes to include the logging functionality.
+
+1. student_manager.py - Adding Logging
+# student_manager.py
+import logging
+
+# Set up logging configuration
+logging.basicConfig(filename='transaction_log.log', level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+class StudentManager:
+    def __init__(self):
+        self.students = {}
+        self.faculty_members = {}  # Dictionary to store faculty information
+        self.student_id_counter = 1
+        self.faculty_id_counter = 1
+
+    def add_faculty(self, faculty_name, username, password):
+        """
+        Add a new faculty member to the system.
+        """
+        faculty_id = self.faculty_id_counter
+        self.faculty_members[faculty_id] = {
+            'name': faculty_name,
+            'username': username,
+            'password': password,
+            'assigned_students': []  # Faculty can have assigned students
+        }
+        self.faculty_id_counter += 1
+        # Log the action of adding a faculty member
+        logging.info(f"Faculty added: {faculty_name}, ID: {faculty_id}, Username: {username}")
+        return faculty_id
+
+    def add_student(self, name, age, city, course, contact, faculty_id):
+        """
+        Add a new student and associate them with a specific faculty member.
+        """
+        student_id = self.student_id_counter
+        self.students[student_id] = {
+            'name': name,
+            'details': {
+                'age': age,
+                'city': city,
+                'course': course,
+                'contact': contact,
+                'marks': None  # Initially no marks
+            },
+            'faculty_id': faculty_id  # Associate student with faculty
+        }
+        self.faculty_members[faculty_id]['assigned_students'].append(student_id)
+        self.student_id_counter += 1
+        # Log the action of adding a student
+        logging.info(f"Student added: {name}, ID: {student_id}, Faculty ID: {faculty_id}")
+        return student_id
+
+    def get_student_by_id(self, student_id):
+        return self.students.get(student_id, None)
+
+    def add_marks(self, faculty_id, student_id, marks):
+        """
+        Add marks for a student. Faculty can add marks only to their own students.
+        """
+        student = self.get_student_by_id(student_id)
+        if student and student['faculty_id'] == faculty_id:
+            student['details']['marks'] = marks
+            # Log the action of adding marks
+            logging.info(f"Marks added for Student ID: {student_id} by Faculty ID: {faculty_id}, Marks: {marks}")
+            return True
+        else:
+            logging.warning(f"Failed to add marks for Student ID: {student_id} by Faculty ID: {faculty_id}, Unauthorized access attempt.")
+            return False
+
+    def view_students_of_faculty(self, faculty_id):
+        """
+        View all students assigned to a specific faculty.
+        """
+        student_list = []
+        for student_id in self.faculty_members[faculty_id]['assigned_students']:
+            student_list.append(self.get_student_by_id(student_id))
+        # Log the action of viewing students
+        logging.info(f"Faculty ID: {faculty_id} viewed their assigned students.")
+        return student_list
+
+main.py - Logging Faculty Actions
+# main.py
+from student_manager import StudentManager
+
+class Faculty:
+    def __init__(self):
+        self.manager = StudentManager()
+
+    def show_faculty_menu(self, faculty_id):
+        while True:
+            print("\n===== Faculty Menu =====")
+            print("1. Add Marks for a Student")
+            print("2. View All Students Assigned to Me")
+            print("3. Exit")
+
+            choice = input("Enter choice (1-3): ")
+
+            if choice == '1':
+                self.add_marks(faculty_id)
+            elif choice == '2':
+                self.view_all_students(faculty_id)
+            elif choice == '3':
+                print("\nExiting Faculty Menu...\n")
+                break
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 3.\n")
+
+    def add_marks(self, faculty_id):
+        print("\n--- Add Marks for a Student ---")
+        student_id = self.get_valid_student_id("Enter Student ID: ")
+
+        marks = input("Enter Marks: ")
+        try:
+            marks = float(marks)
+        except ValueError:
+            print("Invalid marks input. Marks should be a number.")
+            return
+        
+        if self.manager.add_marks(faculty_id, student_id, marks):
+            print(f"\nMarks for Student ID {student_id} have been successfully added.\n")
+        else:
+            print("You are not authorized to add marks for this student.\n")
+
+    def view_all_students(self, faculty_id):
+        print("\n--- Your Assigned Students ---")
+        students = self.manager.view_students_of_faculty(faculty_id)
+        if students:
+            for student in students:
+                student_details = student['details']
+                print(f"ID: {student}, Name: {student['name']}, Age: {student_details['age']}, "
+                      f"Course: {student_details['course']}, Marks: {student_details['marks']}")
+        else:
+            print("You do not have any students assigned.\n")
+
+    def get_valid_student_id(self, prompt):
+        while True:
+            try:
+                student_id = int(input(prompt))
+                return student_id
+            except ValueError:
+                print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+
+def main():
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Faculty.")
+
+    # Sample Faculty Credentials
+    faculty_username = "faculty1"
+    faculty_password = "password"
+
+    # Create an instance of the Faculty class
+    faculty_system = Faculty()
+
+    # Hardcoded for demonstration
+    faculty_id = faculty_system.manager.add_faculty("Dr. Smith", faculty_username, faculty_password)
+
+    # Faculty login simulation
+    print("\nFaculty Login:")
+    username = input("Enter Username: ")
+    password = input("Enter Password: ")
+
+    if username == faculty_username and password == faculty_password:
+        print("\nLogin successful! Welcome, Faculty.")
+        faculty_system.show_faculty_menu(faculty_id)
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Logging Configuration:
+
+We configure logging at the beginning of the student_manager.py file with the following settings:
+logging.basicConfig(filename='transaction_log.log', level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+This ensures that all logs are written to transaction_log.log, and the log entries include a timestamp, log level, and message.
+
+Log Important Actions:
+
+Every time a student is added, marks are added, or faculty views their assigned students, a log entry is created.
+
+For instance, when marks are added to a student, the following log entry is written:
+logging.info(f"Marks added for Student ID: {student_id} by Faculty ID: {faculty_id}, Marks: {marks}")
+
+If a faculty member tries to access a student they are not authorized to view, a warning log is written:
+logging.warning(f"Failed to add marks for Student ID: {student_id} by Faculty ID: {faculty_id}, Unauthorized access attempt.")
+
+Log File:
+
+All actions are logged into the transaction_log.log file. Here’s an example of how the log might look:
+2025-04-11 14:32:15,123 - INFO - Faculty added: Dr. Smith, ID: 1, Username: faculty1
+2025-04-11 14:35:10,987 - INFO - Student added: John, ID: 1, Faculty ID: 1
+2025-04-11 14:37:20,543 - INFO - Marks added for Student ID: 1 by Faculty ID: 1, Marks: 85.0
+2025-04-11 14:39:05,643 - WARNING - Failed to add marks for Student ID: 2 by Faculty ID: 1, Unauthorized access attempt.
+
+Q: faculty menu as follows 
+
+
+answer: faculty.py (Updated for Menu Options)
+# faculty.py
+from student_manager import StudentManager
+
+class Faculty:
+    def __init__(self):
+        self.manager = StudentManager()
+
+    def show_faculty_menu(self, faculty_id):
+        while True:
+            print("\n===== Faculty Menu =====")
+            print("1. Add Marks for a Student")
+            print("2. View All Students Assigned to Me")
+            print("3. Logout")
+
+            choice = input("Enter choice (1-3): ")
+
+            if choice == '1':
+                self.add_marks(faculty_id)
+            elif choice == '2':
+                self.view_all_students(faculty_id)
+            elif choice == '3':
+                print("\nLogging out...\n")
+                break
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 3.\n")
+
+    def add_marks(self, faculty_id):
+        print("\n--- Add Marks for a Student ---")
+        student_id = self.get_valid_student_id("Enter Student ID: ")
+
+        marks = input("Enter Marks: ")
+        try:
+            marks = float(marks)
+        except ValueError:
+            print("Invalid marks input. Marks should be a number.")
+            return
+        
+        if self.manager.add_marks(faculty_id, student_id, marks):
+            print(f"\nMarks for Student ID {student_id} have been successfully added.\n")
+        else:
+            print("You are not authorized to add marks for this student.\n")
+
+    def view_all_students(self, faculty_id):
+        print("\n--- Your Assigned Students ---")
+        students = self.manager.view_students_of_faculty(faculty_id)
+        if students:
+            for student in students:
+                student_details = student['details']
+                print(f"ID: {student}, Name: {student['name']}, Age: {student_details['age']}, "
+                      f"Course: {student_details['course']}, Marks: {student_details['marks']}")
+        else:
+            print("You do not have any students assigned.\n")
+
+    def get_valid_student_id(self, prompt):
+        while True:
+            try:
+                student_id = int(input(prompt))
+                return student_id
+            except ValueError:
+                print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+
+student_manager.py (Remains the Same as Before)
+Make sure the StudentManager class already has the functionality to:
+
+Add students.
+
+Assign faculty to students.
+
+Add marks for students assigned to the faculty.
+
+View students assigned to the faculty.
+
+main.py - Faculty Login and Menu Integration
+Here’s how we integrate the faculty login and menu into the main.py:
+
+# main.py
+from student_manager import StudentManager
+from faculty import Faculty
+
+def main():
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Faculty.")
+
+    # Sample Faculty Credentials (hardcoded for demo)
+    faculty_username = "faculty1"
+    faculty_password = "password"
+
+    # Create an instance of the Faculty class
+    faculty_system = Faculty()
+
+    # Hardcoded for demonstration (faculty ID)
+    faculty_id = faculty_system.manager.add_faculty("Dr. Smith", faculty_username, faculty_password)
+
+    # Faculty login simulation
+    print("\nFaculty Login:")
+    username = input("Enter Username: ")
+    password = input("Enter Password: ")
+
+    if username == faculty_username and password == faculty_password:
+        print("\nLogin successful! Welcome, Faculty.")
+        faculty_system.show_faculty_menu(faculty_id)
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Faculty Login:
+Welcome to the Student Management System!
+Please log in as a Faculty.
+
+Faculty Login:
+Enter Username: faculty1
+Enter Password: password
+
+Login successful! Welcome, Faculty.
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Logout
+Enter choice (1-3): 1
+
+--- Add Marks for a Student ---
+Enter Student ID: 1
+Enter Marks: 85
+
+Marks for Student ID 1 have been successfully added.
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Logout
+Enter choice (1-3): 2
+
+--- Your Assigned Students ---
+ID: 1, Name: John, Age: 22, Course: Computer Science, Marks: 85.0
+
+Unauthorized Attempt:
+You are not authorized to add marks for this student.
+
+Logout:
+Logging out...
+
+Q: After each selection menu must be displayed asking for user input
+
+answer: faculty.py (Updated Faculty Menu with Continuation)
+
+# faculty.py
+from student_manager import StudentManager
+
+class Faculty:
+    def __init__(self):
+        self.manager = StudentManager()
+
+    def show_faculty_menu(self, faculty_id):
+        """
+        Displays the faculty menu repeatedly until the user chooses to log out.
+        """
+        while True:
+            print("\n===== Faculty Menu =====")
+            print("1. Add Marks for a Student")
+            print("2. View All Students Assigned to Me")
+            print("3. Logout")
+
+            choice = input("Enter choice (1-3): ")
+
+            if choice == '1':
+                self.add_marks(faculty_id)
+            elif choice == '2':
+                self.view_all_students(faculty_id)
+            elif choice == '3':
+                print("\nLogging out...\n")
+                break  # Exit the loop and log out
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 3.\n")
+
+    def add_marks(self, faculty_id):
+        """
+        Allows faculty to add marks to a student's record if they are assigned to the faculty.
+        """
+        print("\n--- Add Marks for a Student ---")
+        student_id = self.get_valid_student_id("Enter Student ID: ")
+
+        # Prompt for marks input
+        marks = input("Enter Marks: ")
+        try:
+            marks = float(marks)
+        except ValueError:
+            print("Invalid marks input. Marks should be a number.")
+            return
+        
+        if self.manager.add_marks(faculty_id, student_id, marks):
+            print(f"\nMarks for Student ID {student_id} have been successfully added.\n")
+        else:
+            print("You are not authorized to add marks for this student.\n")
+
+    def view_all_students(self, faculty_id):
+        """
+        Allows faculty to view all students assigned to them.
+        """
+        print("\n--- Your Assigned Students ---")
+        students = self.manager.view_students_of_faculty(faculty_id)
+        if students:
+            for student in students:
+                student_details = student['details']
+                print(f"ID: {student}, Name: {student['name']}, Age: {student_details['age']}, "
+                      f"Course: {student_details['course']}, Marks: {student_details['marks']}")
+        else:
+            print("You do not have any students assigned.\n")
+
+    def get_valid_student_id(self, prompt):
+        """
+        Ensures that the user enters a valid student ID.
+        """
+        while True:
+            try:
+                student_id = int(input(prompt))
+                return student_id
+            except ValueError:
+                print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+
+ main.py - Faculty Login and Menu Integration
+Make sure to properly integrate the Faculty Menu after the faculty successfully logs in.
+
+# main.py
+from student_manager import StudentManager
+from faculty import Faculty
+
+def main():
+    """
+    Main function to initialize the system and perform faculty login.
+    """
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Faculty.")
+
+    # Sample Faculty Credentials (hardcoded for demo)
+    faculty_username = "faculty1"
+    faculty_password = "password"
+
+    # Create an instance of the Faculty class
+    faculty_system = Faculty()
+
+    # Hardcoded for demonstration (faculty ID)
+    faculty_id = faculty_system.manager.add_faculty("Dr. Smith", faculty_username, faculty_password)
+
+    # Faculty login simulation
+    print("\nFaculty Login:")
+    username = input("Enter Username: ")
+    password = input("Enter Password: ")
+
+    if username == faculty_username and password == faculty_password:
+        print("\nLogin successful! Welcome, Faculty.")
+        faculty_system.show_faculty_menu(faculty_id)  # Show menu after successful login
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Welcome to the Student Management System!
+Please log in as a Faculty.
+
+Faculty Login:
+Enter Username: faculty1
+Enter Password: password
+
+Login successful! Welcome, Faculty.
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Logout
+Enter choice (1-3): 1
+
+--- Add Marks for a Student ---
+Enter Student ID: 1
+Enter Marks: 85
+
+Marks for Student ID 1 have been successfully added.
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Logout
+Enter choice (1-3): 2
+
+--- Your Assigned Students ---
+ID: 1, Name: John, Age: 22, Course: Computer Science, Marks: 85.0
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Logout
+Enter choice (1-3): 3
+
+Logging out...
+
+Q: After execution of each option confirmation message must be displayed
+
+answer: faculty.py (Updated to Include Confirmation Messages)
+
+# faculty.py
+from student_manager import StudentManager
+
+class Faculty:
+    def __init__(self):
+        self.manager = StudentManager()
+
+    def show_faculty_menu(self, faculty_id):
+        """
+        Displays the faculty menu repeatedly until the user chooses to log out.
+        """
+        while True:
+            print("\n===== Faculty Menu =====")
+            print("1. Add Marks for a Student")
+            print("2. View All Students Assigned to Me")
+            print("3. Logout")
+
+            choice = input("Enter choice (1-3): ")
+
+            if choice == '1':
+                self.add_marks(faculty_id)
+            elif choice == '2':
+                self.view_all_students(faculty_id)
+            elif choice == '3':
+                self.logout()
+                break  # Exit the loop and log out
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 3.\n")
+
+    def add_marks(self, faculty_id):
+        """
+        Allows faculty to add marks to a student's record if they are assigned to the faculty.
+        """
+        print("\n--- Add Marks for a Student ---")
+        student_id = self.get_valid_student_id("Enter Student ID: ")
+
+        # Prompt for marks input
+        marks = input("Enter Marks: ")
+        try:
+            marks = float(marks)
+        except ValueError:
+            print("Invalid marks input. Marks should be a number.")
+            return
+        
+        if self.manager.add_marks(faculty_id, student_id, marks):
+            print(f"\nMarks for Student ID {student_id} have been successfully added.")
+        else:
+            print("You are not authorized to add marks for this student.")
+
+        # Confirmation message after adding marks
+        print("\nAction completed successfully. Returning to Faculty Menu.")
+
+    def view_all_students(self, faculty_id):
+        """
+        Allows faculty to view all students assigned to them.
+        """
+        print("\n--- Your Assigned Students ---")
+        students = self.manager.view_students_of_faculty(faculty_id)
+        if students:
+            for student in students:
+                student_details = student['details']
+                print(f"ID: {student}, Name: {student['name']}, Age: {student_details['age']}, "
+                      f"Course: {student_details['course']}, Marks: {student_details['marks']}")
+        else:
+            print("You do not have any students assigned.\n")
+
+        # Confirmation message after viewing students
+        print("\nAction completed successfully. Returning to Faculty Menu.")
+
+    def logout(self):
+        """
+        Logs out the faculty and returns to the login screen.
+        """
+        print("\nLogging out...")
+        print("Logout successful. You can now log in again or exit the system.")
+
+    def get_valid_student_id(self, prompt):
+        """
+        Ensures that the user enters a valid student ID.
+        """
+        while True:
+            try:
+                student_id = int(input(prompt))
+                return student_id
+            except ValueError:
+                print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+
+main.py - Faculty Login and Menu Integration
+No significant changes are needed in main.py other than the existing login process, which now leads to the updated Faculty Menu with confirmation messages after each operation.
+
+# main.py
+from student_manager import StudentManager
+from faculty import Faculty
+
+def main():
+    """
+    Main function to initialize the system and perform faculty login.
+    """
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Faculty.")
+
+    # Sample Faculty Credentials (hardcoded for demo)
+    faculty_username = "faculty1"
+    faculty_password = "password"
+
+    # Create an instance of the Faculty class
+    faculty_system = Faculty()
+
+    # Hardcoded for demonstration (faculty ID)
+    faculty_id = faculty_system.manager.add_faculty("Dr. Smith", faculty_username, faculty_password)
+
+    # Faculty login simulation
+    print("\nFaculty Login:")
+    username = input("Enter Username: ")
+    password = input("Enter Password: ")
+
+    if username == faculty_username and password == faculty_password:
+        print("\nLogin successful! Welcome, Faculty.")
+        faculty_system.show_faculty_menu(faculty_id)  # Show menu after successful login
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Faculty Login:
+
+Welcome to the Student Management System!
+Please log in as a Faculty.
+
+Faculty Login:
+Enter Username: faculty1
+Enter Password: password
+
+Login successful! Welcome, Faculty.
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Logout
+Enter choice (1-3): 1
+
+--- Add Marks for a Student ---
+Enter Student ID: 1
+Enter Marks: 85
+
+Marks for Student ID 1 have been successfully added.
+
+Action completed successfully. Returning to Faculty Menu.
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Logout
+Enter choice (1-3): 2
+
+--- Your Assigned Students ---
+ID: 1, Name: John, Age: 22, Course: Computer Science, Marks: 85.0
+
+Action completed successfully. Returning to Faculty Menu.
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Logout
+Enter choice (1-3): 3
+
+Logging out...
+Logout successful. You can now log in again or exit the system.
+
+Q: Remove option must ask to user for ID to delete and again ask for confirmation
+(Y/N) before deletion and display proper message after deletion
+
+answer: Updated faculty.py with Deletion Logic
+# faculty.py
+from student_manager import StudentManager
+
+class Faculty:
+    def __init__(self):
+        self.manager = StudentManager()
+
+    def show_faculty_menu(self, faculty_id):
+        """
+        Displays the faculty menu repeatedly until the user chooses to log out.
+        """
+        while True:
+            print("\n===== Faculty Menu =====")
+            print("1. Add Marks for a Student")
+            print("2. View All Students Assigned to Me")
+            print("3. Remove a Student")
+            print("4. Logout")
+
+            choice = input("Enter choice (1-4): ")
+
+            if choice == '1':
+                self.add_marks(faculty_id)
+            elif choice == '2':
+                self.view_all_students(faculty_id)
+            elif choice == '3':
+                self.remove_student()
+            elif choice == '4':
+                self.logout()
+                break  # Exit the loop and log out
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 4.\n")
+
+    def add_marks(self, faculty_id):
+        """
+        Allows faculty to add marks to a student's record if they are assigned to the faculty.
+        """
+        print("\n--- Add Marks for a Student ---")
+        student_id = self.get_valid_student_id("Enter Student ID: ")
+
+        # Prompt for marks input
+        marks = input("Enter Marks: ")
+        try:
+            marks = float(marks)
+        except ValueError:
+            print("Invalid marks input. Marks should be a number.")
+            return
+        
+        if self.manager.add_marks(faculty_id, student_id, marks):
+            print(f"\nMarks for Student ID {student_id} have been successfully added.")
+        else:
+            print("You are not authorized to add marks for this student.")
+
+        # Confirmation message after adding marks
+        print("\nAction completed successfully. Returning to Faculty Menu.")
+
+    def view_all_students(self, faculty_id):
+        """
+        Allows faculty to view all students assigned to them.
+        """
+        print("\n--- Your Assigned Students ---")
+        students = self.manager.view_students_of_faculty(faculty_id)
+        if students:
+            for student in students:
+                student_details = student['details']
+                print(f"ID: {student}, Name: {student['name']}, Age: {student_details['age']}, "
+                      f"Course: {student_details['course']}, Marks: {student_details['marks']}")
+        else:
+            print("You do not have any students assigned.\n")
+
+        # Confirmation message after viewing students
+        print("\nAction completed successfully. Returning to Faculty Menu.")
+
+    def remove_student(self):
+        """
+        Allows faculty to remove a student from the system with confirmation.
+        """
+        print("\n--- Remove a Student ---")
+        student_id = self.get_valid_student_id("Enter Student ID to remove: ")
+
+        # Ask for confirmation before deletion
+        confirmation = input(f"Are you sure you want to delete the student with ID {student_id}? (Y/N): ").upper()
+
+        if confirmation == 'Y':
+            # Deleting the student
+            if self.manager.remove_student(student_id):
+                print(f"\nStudent with ID {student_id} has been successfully removed.")
+            else:
+                print("\nStudent not found or you do not have permission to delete this student.")
+        elif confirmation == 'N':
+            print("\nStudent deletion canceled.")
+        else:
+            print("\nInvalid input. Please enter Y to confirm or N to cancel.")
+
+        # Return to the Faculty Menu after deletion or cancellation
+        print("\nAction completed. Returning to Faculty Menu.")
+
+    def logout(self):
+        """
+        Logs out the faculty and returns to the login screen.
+        """
+        print("\nLogging out...")
+        print("Logout successful. You can now log in again or exit the system.")
+
+    def get_valid_student_id(self, prompt):
+        """
+        Ensures that the user enters a valid student ID.
+        """
+        while True:
+            try:
+                student_id = int(input(prompt))
+                return student_id
+            except ValueError:
+                print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+
+Updated main.py (No Changes Needed for the Menu)
+Since the faculty menu and its options are handled in faculty.py, the main.py remains mostly the same except that we now have an additional option for deleting students.
+
+# main.py
+from student_manager import StudentManager
+from faculty import Faculty
+
+def main():
+    """
+    Main function to initialize the system and perform faculty login.
+    """
+    print("Welcome to the Student Management System!")
+    print("Please log in as a Faculty.")
+
+    # Sample Faculty Credentials (hardcoded for demo)
+    faculty_username = "faculty1"
+    faculty_password = "password"
+
+    # Create an instance of the Faculty class
+    faculty_system = Faculty()
+
+    # Hardcoded for demonstration (faculty ID)
+    faculty_id = faculty_system.manager.add_faculty("Dr. Smith", faculty_username, faculty_password)
+
+    # Faculty login simulation
+    print("\nFaculty Login:")
+    username = input("Enter Username: ")
+    password = input("Enter Password: ")
+
+    if username == faculty_username and password == faculty_password:
+        print("\nLogin successful! Welcome, Faculty.")
+        faculty_system.show_faculty_menu(faculty_id)  # Show menu after successful login
+    else:
+        print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Example Output Flow:
+
+Welcome to the Student Management System!
+Please log in as a Faculty.
+
+Faculty Login:
+Enter Username: faculty1
+Enter Password: password
+
+Login successful! Welcome, Faculty.
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Remove a Student
+4. Logout
+Enter choice (1-4): 3
+
+--- Remove a Student ---
+Enter Student ID to remove: 2
+Are you sure you want to delete the student with ID 2? (Y/N): Y
+
+Student with ID 2 has been successfully removed.
+
+Action completed. Returning to Faculty Menu.
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Remove a Student
+4. Logout
+Enter choice (1-4): 4
+
+Logging out...
+Logout successful. You can now log in again or exit the system.
+
+Q: Program should not be terminated till the user Exit it
+
+answer: Updated faculty.py (Including Exit Option)
+# faculty.py
+from student_manager import StudentManager
+
+class Faculty:
+    def __init__(self):
+        self.manager = StudentManager()
+
+    def show_faculty_menu(self, faculty_id):
+        """
+        Displays the faculty menu repeatedly until the user chooses to log out or exit the system.
+        """
+        while True:
+            print("\n===== Faculty Menu =====")
+            print("1. Add Marks for a Student")
+            print("2. View All Students Assigned to Me")
+            print("3. Remove a Student")
+            print("4. Logout")
+            print("5. Exit")
+
+            choice = input("Enter choice (1-5): ")
+
+            if choice == '1':
+                self.add_marks(faculty_id)
+            elif choice == '2':
+                self.view_all_students(faculty_id)
+            elif choice == '3':
+                self.remove_student()
+            elif choice == '4':
+                self.logout()
+                break  # Exit the loop and log out
+            elif choice == '5':
+                print("Exiting the system. Goodbye!")
+                exit()  # Exit the program
+            else:
+                print("Invalid choice! Please enter a valid number between 1 and 5.\n")
+
+    def add_marks(self, faculty_id):
+        """
+        Allows faculty to add marks to a student's record if they are assigned to the faculty.
+        """
+        print("\n--- Add Marks for a Student ---")
+        student_id = self.get_valid_student_id("Enter Student ID: ")
+
+        # Prompt for marks input
+        marks = input("Enter Marks: ")
+        try:
+            marks = float(marks)
+        except ValueError:
+            print("Invalid marks input. Marks should be a number.")
+            return
+        
+        if self.manager.add_marks(faculty_id, student_id, marks):
+            print(f"\nMarks for Student ID {student_id} have been successfully added.")
+        else:
+            print("You are not authorized to add marks for this student.")
+
+        # Confirmation message after adding marks
+        print("\nAction completed successfully. Returning to Faculty Menu.")
+
+    def view_all_students(self, faculty_id):
+        """
+        Allows faculty to view all students assigned to them.
+        """
+        print("\n--- Your Assigned Students ---")
+        students = self.manager.view_students_of_faculty(faculty_id)
+        if students:
+            for student in students:
+                student_details = student['details']
+                print(f"ID: {student}, Name: {student['name']}, Age: {student_details['age']}, "
+                      f"Course: {student_details['course']}, Marks: {student_details['marks']}")
+        else:
+            print("You do not have any students assigned.\n")
+
+        # Confirmation message after viewing students
+        print("\nAction completed successfully. Returning to Faculty Menu.")
+
+    def remove_student(self):
+        """
+        Allows faculty to remove a student from the system with confirmation.
+        """
+        print("\n--- Remove a Student ---")
+        student_id = self.get_valid_student_id("Enter Student ID to remove: ")
+
+        # Ask for confirmation before deletion
+        confirmation = input(f"Are you sure you want to delete the student with ID {student_id}? (Y/N): ").upper()
+
+        if confirmation == 'Y':
+            # Deleting the student
+            if self.manager.remove_student(student_id):
+                print(f"\nStudent with ID {student_id} has been successfully removed.")
+            else:
+                print("\nStudent not found or you do not have permission to delete this student.")
+        elif confirmation == 'N':
+            print("\nStudent deletion canceled.")
+        else:
+            print("\nInvalid input. Please enter Y to confirm or N to cancel.")
+
+        # Return to the Faculty Menu after deletion or cancellation
+        print("\nAction completed. Returning to Faculty Menu.")
+
+    def logout(self):
+        """
+        Logs out the faculty and returns to the login screen.
+        """
+        print("\nLogging out...")
+        print("Logout successful. You can now log in again or exit the system.")
+
+    def get_valid_student_id(self, prompt):
+        """
+        Ensures that the user enters a valid student ID.
+        """
+        while True:
+            try:
+                student_id = int(input(prompt))
+                return student_id
+            except ValueError:
+                print("Invalid input! Please enter a valid student ID (a numeric value).\n")
+
+Updated main.py (Main Program Loop to Keep it Running)
+
+# main.py
+from student_manager import StudentManager
+from faculty import Faculty
+
+def main():
+    """
+    Main function to initialize the system and perform faculty login.
+    This function will keep the program running until the user selects 'Exit'.
+    """
+    print("Welcome to the Student Management System!")
+
+    # Sample Faculty Credentials (hardcoded for demo)
+    faculty_username = "faculty1"
+    faculty_password = "password"
+
+    # Create an instance of the Faculty class
+    faculty_system = Faculty()
+
+    # Hardcoded for demonstration (faculty ID)
+    faculty_id = faculty_system.manager.add_faculty("Dr. Smith", faculty_username, faculty_password)
+
+    while True:
+        # Faculty login simulation (keep this running until user logs in successfully)
+        print("\nFaculty Login:")
+        username = input("Enter Username: ")
+        password = input("Enter Password: ")
+
+        if username == faculty_username and password == faculty_password:
+            print("\nLogin successful! Welcome, Faculty.")
+            faculty_system.show_faculty_menu(faculty_id)  # Show menu after successful login
+            break  # Exit loop once logged in successfully
+        else:
+            print("\nLogin failed! Please try again with correct credentials.")
+
+if __name__ == "__main__":
+    main()
+
+Example Output Flow:
+
+Welcome to the Student Management System!
+
+Faculty Login:
+Enter Username: faculty1
+Enter Password: password
+
+Login successful! Welcome, Faculty.
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Remove a Student
+4. Logout
+5. Exit
+Enter choice (1-5): 1
+
+--- Add Marks for a Student ---
+Enter Student ID: 1
+Enter Marks: 90
+
+Marks for Student ID 1 have been successfully added.
+
+Action completed successfully. Returning to Faculty Menu.
+
+===== Faculty Menu =====
+1. Add Marks for a Student
+2. View All Students Assigned to Me
+3. Remove a Student
+4. Logout
+5. Exit
+Enter choice (1-5): 5
+
+Exiting the system. Goodbye!
+
+Q: Developer needs to test his product before launching it into the market
+
+answer: Testing is a critical phase in the software development lifecycle. Before launching a product to the market, developers must ensure that the software is free from defects, functions correctly, and meets the requirements and expectations of end users. Here are the essential testing steps that developers should perform before launching a product:
+
+1. Unit Testing:
+What it is: Testing individual components or functions of the software in isolation.
+
+Why it’s important: Ensures that each part of the application works as expected before integrating them into the full system.
+
+Tools: JUnit (Java), pytest (Python), Mocha (JavaScript), NUnit (.NET).
+
+Example: If you're building a calculator, unit tests would check that functions like add(), subtract(), multiply(), and divide() are working properly.
+
+2. Integration Testing:
+What it is: Testing the interaction between different modules or components of the system to ensure they work together correctly.
+
+Why it’s important: Even if individual components pass unit tests, the integration of these components could cause issues.
+
+Tools: Postman (for API testing), Selenium (for UI testing), JUnit, TestNG.
+
+Example: Testing whether the user login works by interacting with the database and other backend services.
+
+3. System Testing:
+What it is: Testing the entire system as a whole to verify that it meets the specified requirements.
+
+Why it’s important: Validates the product from a high-level perspective and ensures that all components work together in a real-world scenario.
+
+Tools: Selenium, LoadRunner, JMeter, TestComplete.
+
+Example: Testing whether the full registration process for a user works correctly, from form input to confirmation email.
+
+4. User Acceptance Testing (UAT):
+What it is: The process where real users test the product to verify that it meets their needs and expectations.
+
+Why it’s important: Ensures that the software fulfills the business requirements and that users are satisfied with its features and functionality.
+
+Tools: UAT doesn’t typically require a specific tool but is often done manually by end users with the support of testing teams.
+
+Example: In a banking app, UAT would involve real customers verifying whether the account management features work as expected.
+
+5. Performance Testing:
+What it is: Testing how well the software performs under stress, heavy load, or unexpected conditions.
+
+Why it’s important: Ensures that the product can handle real-world traffic and high user demand without crashing or slowing down.
+
+Tools: Apache JMeter, LoadRunner, New Relic.
+
+Example: Testing whether an e-commerce website can handle thousands of concurrent users during a flash sale without crashing.
+
+6. Security Testing:
+What it is: Identifying vulnerabilities and weaknesses in the software that could potentially be exploited by attackers.
+
+Why it’s important: Prevents unauthorized access to sensitive data, prevents breaches, and protects the system from malicious activities.
+
+Tools: OWASP ZAP, Burp Suite, Nessus.
+
+Example: Testing a login page for vulnerabilities like SQL injection or cross-site scripting (XSS).
+
+7. Compatibility Testing:
+What it is: Testing the software on different devices, operating systems, browsers, and network environments to ensure it works everywhere.
+
+Why it’s important: Ensures that users across various platforms have a consistent experience.
+
+Tools: BrowserStack, CrossBrowserTesting, Sauce Labs.
+
+Example: Testing an application to ensure that it works in both Chrome and Firefox, or on Windows and macOS.
+
+8. Regression Testing:
+What it is: Testing the software after updates or changes to ensure that previously working features are still functioning correctly.
+
+Why it’s important: Ensures that bug fixes or new features don’t introduce new problems or break existing functionality.
+
+Tools: Selenium, Jenkins (for continuous integration).
+
+Example: After fixing a bug in the shopping cart, performing regression testing to make sure the payment process still works correctly.
+
+9. Smoke Testing:
+What it is: A preliminary test to check the basic functionality of the software. It’s often done before more detailed testing.
+
+Why it’s important: Provides a quick check to see if the software is stable enough for further testing.
+
+Tools: Manual tests or automated scripts.
+
+Example: Checking whether the application starts and basic navigation works before running detailed tests.
+
+10. Beta Testing:
+What it is: A real-world test where the product is released to a select group of external users (beta testers) to test it in different environments.
+
+Why it’s important: Provides feedback from real users, which can uncover issues that were missed in previous testing phases.
+
+Tools: Google Forms, Bugzilla, TestFlight (for mobile apps).
+
+Example: A mobile app being released to a small group of users to identify bugs and gather feedback on usability before the official launch.
+
+11. Beta Testing (For User Feedback):
+Beta testing should be done to get feedback from real users on how the system performs in actual conditions and gather insights into potential issues that weren’t covered in earlier testing phases.
+
