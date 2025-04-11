@@ -1,0 +1,134 @@
+Q: Create a Bank table, attributes are : branch id, branch name, branch city
+
+answer: CREATE TABLE branch (
+    branch_id VARCHAR(6) PRIMARY KEY,
+    branch_name VARCHAR(30),
+    branch_city VARCHAR(30)
+);
+
+Q: Create a Loan table, attributes are : loan no, branch id, account holder’s id, loan
+amount and loan type 
+
+answer: CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_id INT NOT NULL,
+    account_holder_id INT NOT NULL,
+    loan_amount DECIMAL(15, 2) NOT NULL,
+    loan_type VARCHAR(50) NOT NULL
+);
+
+Q: Create a table named as Account holder for the same scenario containing the
+attributes are account holder’s id, account no, account holder’s name,
+city,contact, date of account created, account status (active or terminated),
+account type and balance.
+
+answer: CREATE TABLE AccountHolder (
+    account_holder_id INT PRIMARY KEY,
+    account_no INT UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    city VARCHAR(50),
+    contact VARCHAR(15),
+    date_created DATE NOT NULL,
+    account_status VARCHAR(10) CHECK (account_status IN ('active', 'terminated')),
+    account_type VARCHAR(50),
+    balance DECIMAL(15, 2) DEFAULT 0.00
+);
+
+Q: ● Consider an example where there’s an account holder table where we are
+doing an intra bank transfer i.e. a person holding account A is trying to
+transfer $100 to account B.
+- for this you have to make a transaction in sql which can
+transfer fund from account A to B
+- Make sure after the transaction the account information
+have to be updated for both the credit account and the
+debited account
+
+answer: -- Assuming you are using a SQL dialect that supports transactions (like MySQL, PostgreSQL, SQL Server)
+
+START TRANSACTION;
+
+-- Step 1: Deduct $100 from Account A
+UPDATE AccountHolder
+SET balance = balance - 100
+WHERE account_no = 123456;  -- Replace with actual Account A number
+
+-- Step 2: Add $100 to Account B
+UPDATE AccountHolder
+SET balance = balance + 100
+WHERE account_no = 654321;  -- Replace with actual Account B number
+
+-- Optional: Add check to ensure balance of Account A is not negative
+-- (Otherwise add a manual validation before transaction)
+
+COMMIT;
+
+START TRANSACTION;
+
+-- Check if Account A has sufficient balance
+UPDATE AccountHolder
+SET balance = balance - 100
+WHERE account_no = 123456 AND balance >= 100;
+
+-- Verify that the deduction succeeded
+IF ROW_COUNT() = 1 THEN
+    -- Proceed to credit Account B
+    UPDATE AccountHolder
+    SET balance = balance + 100
+    WHERE account_no = 654321;
+    
+    COMMIT;
+ELSE
+    -- Insufficient funds or account not found
+    ROLLBACK;
+END IF;
+
+Q: Also fetch the details of the account holder who are related from the same
+city 
+
+answer: SELECT *
+FROM AccountHolder
+WHERE city IN (
+    SELECT city
+    FROM AccountHolder
+    GROUP BY city
+    HAVING COUNT(*) > 1
+);
+
+SELECT a1.account_holder_id AS account_holder_1,
+       a1.name AS name_1,
+       a2.account_holder_id AS account_holder_2,
+       a2.name AS name_2,
+       a1.city
+FROM AccountHolder a1
+JOIN AccountHolder a2
+  ON a1.city = a2.city AND a1.account_holder_id < a2.account_holder_id;
+
+Q: Write a query to fetch account number and account holder name, whose
+accounts were created after 15th of any month
+
+answer: SELECT account_no, name
+FROM AccountHolder
+WHERE DAY(date_created) > 15;
+
+Q: Write a query to display the city name and count the branches in that city.
+Give the count of branches an alias name of Count_Branch.
+
+answer: SELECT city, COUNT(branch_id) AS Count_Branch
+FROM Branch
+GROUP BY city;
+
+Q: Write a query to display the account holder’s id, account holder’s name,
+branch id, and loan amount for people who have taken loans. (NOTE : use
+sql join concept to solve the query)
+
+answer: SELECT 
+    ah.account_holder_id,
+    ah.name,
+    l.branch_id,
+    l.loan_amount
+FROM 
+    Loan l
+INNER JOIN 
+    AccountHolder ah
+ON 
+    l.account_holder_id = ah.account_holder_id;
